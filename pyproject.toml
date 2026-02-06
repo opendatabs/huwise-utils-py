@@ -1,3 +1,128 @@
 [build-system]
-requires = ["setuptools>=70.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "huwise-utils-py"
+version = "1.0.0"
+description = "A Python wrapper library for the Huwise Automation API"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Open Data Basel-Stadt", email = "opendata@bs.ch"},
+    {name = "Renato Farruggio", email = "renato.farruggio@bs.ch"},
+    {name = "Rstam Alosuh", email = "rstam.aloush@bs.ch"},
+    {name = "Orhan Saeedi", email = "orhan.saeedi@bs.ch"},
+]
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "dcc-backend-common>=0.1.4",
+    "httpx>=0.27.0",
+    "rich>=14.3.2",
+]
+
+[project.urls]
+Homepage = "https://github.com/opendatabs/huwise-utils-py"
+Documentation = "https://opendatabs.github.io/huwise-utils-py"
+Repository = "https://github.com/opendatabs/huwise-utils-py.git"
+Issues = "https://github.com/opendatabs/huwise-utils-py/issues"
+"Coding Standards" = "https://dcc-bs.github.io/documentation/coding/python.html"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "ruff>=0.9.0",
+    "ty>=0.0.9",
+    "pre-commit>=4.0.0",
+    "coverage>=7.6.0",
+]
+docs = [
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.24.0",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/huwise_utils_py"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+fix = true
+
+[tool.ruff.lint]
+select = [
+    # flake8-2020
+    "YTT",
+    # flake8-bandit
+    "S",
+    # flake8-bugbear
+    "B",
+    # flake8-builtins
+    "A",
+    # flake8-comprehensions
+    "C4",
+    # flake8-debugger
+    "T10",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # mccabe
+    "C90",
+    # pycodestyle
+    "E", "W",
+    # pyflakes
+    "F",
+    # pygrep-hooks
+    "PGH",
+    # pyupgrade
+    "UP",
+    # ruff
+    "RUF",
+    # tryceratops
+    "TRY",
+]
+ignore = [
+    # LineTooLong
+    "E501",
+    # DoNotAssignLambda
+    "E731",
+    "TRY003",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[tool.ruff.format]
+preview = true
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.isort]
+known-first-party = ["huwise_utils_py"]
+combine-as-imports = true
+force-wrap-aliases = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"

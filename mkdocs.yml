@@ -1,0 +1,87 @@
+site_name: Huwise Utils Python
+site_description: Python utilities for the Huwise Automation API
+site_url: https://opendatabs.github.io/huwise-utils-py
+repo_url: https://github.com/opendatabs/huwise-utils-py
+repo_name: opendatabs/huwise-utils-py
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.tabs
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            docstring_style: google
+            docstring_section_style: spacy
+            merge_init_into_class: true
+            show_signature_annotations: true
+            members_order: source
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - tables
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - API Reference:
+    - Overview: api/index.md
+    - HuwiseConfig: api/config.md
+    - HuwiseDataset: api/dataset.md
+    - HTTP Clients: api/http.md
+    - Bulk Operations: api/bulk.md
+    - Utilities: api/utils.md
+    - Function-based API: api/legacy.md
+  - Examples: examples.md
+  - Migration Guide: migration.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/opendatabs/huwise-utils-py
+  version:
+    provider: mike

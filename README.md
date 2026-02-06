@@ -1,88 +1,118 @@
-# ods-utils-py
-With `ods-utils-py`, the Automation API from Opendatasoft can be accessed directly from Python. A valid API key is required ([Create an API key](#set-up-api-key)). [The source code is publicly available on GitHub](https://github.com/opendatabs/ods-utils-py).
+# huwise-utils-py
+
+A Python library for the Huwise Automation API.
+
+[![PyPI version](https://badge.fury.io/py/huwise-utils-py.svg)](https://badge.fury.io/py/huwise-utils-py)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Features
+
+- **Type-safe configuration** with Pydantic-based `HuwiseConfig`
+- **Object-oriented API** with `HuwiseDataset` class and method chaining
+- **Async support** for high-performance bulk operations
+- **Structured logging** via `dcc-backend-common`
+- **Dependency injection** support for testable code
+- **Backwards compatible** function-based API available
 
 ## Installation
 
-Installation via `pip`:
+Using `uv` (recommended):
 
 ```bash
-pip install ods-utils-py
+uv add huwise-utils-py
 ```
 
----
+Or via `pip`:
+
+```bash
+pip install huwise-utils-py
+```
 
 ## Requirements
 
-- **Python Version:** 3.11 or higher
-- **API Key:** A valid API key from Opendatasoft
+- **Python Version:** 3.12 or higher
+- **API Key:** A valid API key from Huwise
 
----
+## Quick Start
 
-## Getting Started
+### Configuration
 
-### Set up API Key
+Create a `.env` file:
 
-To use `ods-utils-py`, a valid API key from Opendatasoft is required.
+```bash
+HUWISE_API_KEY=your-api-key
+HUWISE_DOMAIN=data.bs.ch
+HUWISE_API_TYPE=automation/v1.0
+```
 
-[For OGD Basel, the API key can be created here](https://data.bs.ch/account/api-keys/).
+### Using HuwiseDataset (Recommended)
 
-For key creation on other platforms, click on the username button in the top right corner to open account settings. Under API Keys, custom keys with the appropriate permissions can be created.
+```python
+from huwise_utils_py import HuwiseDataset
 
-The name should describe its purpose, for example, `"ods_utils_py - <Initial Key Name>"`
+# Create a dataset instance
+dataset = HuwiseDataset(uid="da_abc123")
 
-The API key requires the following 4 permissions:
+# Read metadata
+title = dataset.get_title()
+description = dataset.get_description()
+
+# Update with method chaining
+dataset.set_title("New Title", publish=False) \
+       .set_description("New description") \
+       .publish()
+```
+
+### Using Functions
+
+```python
+from huwise_utils_py import get_dataset_title, set_dataset_title
+
+# Read
+title = get_dataset_title(dataset_uid="da_abc123")
+
+# Write
+set_dataset_title("New Title", dataset_uid="da_abc123")
+```
+
+### Bulk Operations
+
+```python
+from huwise_utils_py import bulk_get_metadata, bulk_get_metadata_async
+import asyncio
+
+# Synchronous
+metadata = bulk_get_metadata(["da_123", "da_456", "da_789"])
+
+# Asynchronous (10-100x faster for many datasets)
+metadata = asyncio.run(bulk_get_metadata_async(["da_123", "da_456", "da_789"]))
+```
+
+## API Key Setup
+
+To use `huwise-utils-py`, create an API key with these permissions:
+
 - Browse all datasets
 - Create new datasets
 - Edit all datasets
 - Publish own datasets
 
-The API key is then required as an environment variable.
+[For OGD Basel, create your API key here](https://data.bs.ch/account/api-keys/).
 
-### Set up Environment Variables
-Next, the environment variables must be defined. For this, add a `.env` file in the root directory with the following content. If a `.env` already exists, just append the following content:
+**Important:** Add `**/.env` to your `.gitignore` to protect your credentials.
 
-```.env
-ODS_API_KEY=your_ods_api_key
+## Documentation
 
-ODS_DOMAIN=data.bs.ch
-ODS_API_TYPE=automation/v1.0
-```
-
-**Important:** Make sure to add `**/.env` to your .gitignore to not upload the credentials to the internet!  
-
-## Usage
-
-Here's a simple example to retrieve the number of datasets:
-
-```python
-import ods_utils_py as ods_utils
-
-num_datasets = ods_utils.get_number_of_datasets()
-print(f"We currently have {num_datasets} datasets.")
-```
-
-A list of all currently implemented functions can be found on [GitHub](https://github.com/opendatabs/ods-utils-py/tree/main/src/ods_utils_py).
-
-If a desired function does not exist, it can be implemented via _requests_utils:
-
-```python
-import ods_utils_py as ods_utils
-
-response = ods_utils._requests_utils.requests_get("https://www.example.com")
-print(response.text)
-```
-
-*Note:* Most of these functions should eventually be integrated into `ods_utils_py` if they use the Automation API.
-
----
+Full documentation is available at [opendatabs.github.io/huwise-utils-py](https://opendatabs.github.io/huwise-utils-py).
 
 ## Further Links
-The complete documentation of the Automation API 1.0 can be found [here](https://help.opendatasoft.com/apis/ods-automation-v1/).
 
----
+- [GitHub Repository](https://github.com/opendatabs/huwise-utils-py)
+- [PyPI Package](https://pypi.org/project/huwise-utils-py/)
+- [Huwise Automation API Documentation](https://help.opendatasoft.com/apis/ods-automation-v1/)
+- [DCC Python Coding Standards](https://dcc-bs.github.io/documentation/coding/python.html)
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file in the repository for the full license text.
-
----
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
