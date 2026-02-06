@@ -33,9 +33,11 @@ def retry(
         Decorated function with retry logic.
 
     Example:
-        >>> @retry(ConnectionError, tries=3, delay=1)
-        ... def fetch_data():
-        ...     return requests.get("https://api.example.com")
+        ```python
+        @retry(ConnectionError, tries=3, delay=1)
+        def fetch_data():
+            return requests.get("https://api.example.com")
+        ```
     """
 
     def decorator(func: Any) -> Any:

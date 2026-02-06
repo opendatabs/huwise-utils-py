@@ -3,14 +3,23 @@
 This package provides a modern, type-safe interface for interacting with the Huwise
 (formerly OpenDataSoft) Automation API to manage datasets, metadata, and more.
 
-Example:
-    >>> from huwise_utils_py import HuwiseDataset
-    >>> dataset = HuwiseDataset(uid="da_abc123")
-    >>> dataset.set_title("New Title").set_description("Description").publish()
+Examples:
+    Using the object-oriented API:
 
-For function-based API:
-    >>> from huwise_utils_py import get_dataset_title, set_dataset_title
-    >>> title = get_dataset_title(dataset_uid="da_abc123")
+    ```python
+    from huwise_utils_py import HuwiseDataset
+
+    dataset = HuwiseDataset(uid="da_abc123")
+    dataset.set_title("New Title").set_description("Description").publish()
+    ```
+
+    Using the function-based API:
+
+    ```python
+    from huwise_utils_py import get_dataset_title, set_dataset_title
+
+    title = get_dataset_title(dataset_uid="da_abc123")
+    ```
 """
 
 # Function-based API

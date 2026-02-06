@@ -86,9 +86,11 @@ class HttpClient:
         config: HuwiseConfig instance for API credentials.
 
     Example:
-        >>> client = HttpClient(HuwiseConfig.from_env())
-        >>> response = client.get("/datasets")
-        >>> data = response.json()
+        ```python
+        client = HttpClient(HuwiseConfig.from_env())
+        response = client.get("/datasets")
+        data = response.json()
+        ```
     """
 
     def __init__(self, config: HuwiseConfig) -> None:
@@ -197,9 +199,11 @@ class AsyncHttpClient:
         config: HuwiseConfig instance for API credentials.
 
     Example:
-        >>> client = AsyncHttpClient(HuwiseConfig.from_env())
-        >>> async with client.session() as session:
-        ...     response = await session.get(f"{client.config.base_url}/datasets")
+        ```python
+        client = AsyncHttpClient(HuwiseConfig.from_env())
+        async with client.session() as session:
+            response = await session.get(f"{client.config.base_url}/datasets")
+        ```
     """
 
     def __init__(self, config: HuwiseConfig) -> None:
@@ -218,9 +222,11 @@ class AsyncHttpClient:
             Configured AsyncClient with proper timeouts and limits.
 
         Example:
-            >>> async with client.session() as session:
-            ...     tasks = [session.get(url) for url in urls]
-            ...     responses = await asyncio.gather(*tasks)
+            ```python
+            async with client.session() as session:
+                tasks = [session.get(url) for url in urls]
+                responses = await asyncio.gather(*tasks)
+            ```
         """
         async with httpx.AsyncClient(
             timeout=DEFAULT_TIMEOUT,

@@ -23,9 +23,11 @@ class HuwiseConfig(AbstractAppConfig):
         api_type: API version/type (defaults to automation/v1.0).
 
     Example:
-        >>> config = HuwiseConfig.from_env()
-        >>> print(config.base_url)
-        'https://data.bs.ch/api/automation/v1.0'
+        ```python
+        config = HuwiseConfig.from_env()
+        print(config.base_url)
+        # Output: 'https://data.bs.ch/api/automation/v1.0'
+        ```
     """
 
     api_key: str = Field(description="API key for Huwise authentication")

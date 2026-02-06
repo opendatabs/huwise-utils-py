@@ -31,9 +31,18 @@ def validate_dataset_identifier(
         ValueError: If neither dataset_id nor dataset_uid is provided.
         IndexError: If dataset_id cannot be resolved to a UID.
 
-    Example:
-        >>> uid = validate_dataset_identifier(dataset_id="12345")
-        >>> uid = validate_dataset_identifier(dataset_uid="da_abc123")
+    Examples:
+        Resolve a numeric ID to a UID:
+
+        ```python
+        uid = validate_dataset_identifier(dataset_id="12345")
+        ```
+
+        Use a UID directly:
+
+        ```python
+        uid = validate_dataset_identifier(dataset_uid="da_abc123")
+        ```
     """
     if dataset_id is not None and dataset_uid is not None:
         raise ValueError("dataset_id and dataset_uid are mutually exclusive")

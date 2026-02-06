@@ -36,9 +36,11 @@ async def bulk_get_metadata_async(
         Dictionary mapping dataset UID to its metadata.
 
     Example:
-        >>> metadata = await bulk_get_metadata_async(["da_123", "da_456"])
-        >>> for uid, meta in metadata.items():
-        ...     print(f"{uid}: {meta.get('default', {}).get('title', {}).get('value')}")
+        ```python
+        metadata = await bulk_get_metadata_async(["da_123", "da_456"])
+        for uid, meta in metadata.items():
+            print(f"{uid}: {meta.get('default', {}).get('title', {}).get('value')}")
+        ```
     """
     config = config or HuwiseConfig.from_env()
     client = AsyncHttpClient(config)
@@ -91,11 +93,13 @@ async def bulk_update_metadata_async(  # noqa: C901
         ValueError: If an update dict contains both or neither identifier.
 
     Example:
-        >>> updates = [
-        ...     {"dataset_uid": "da_123", "title": "New Title 1"},
-        ...     {"dataset_uid": "da_456", "title": "New Title 2"},
-        ... ]
-        >>> results = await bulk_update_metadata_async(updates)
+        ```python
+        updates = [
+            {"dataset_uid": "da_123", "title": "New Title 1"},
+            {"dataset_uid": "da_456", "title": "New Title 2"},
+        ]
+        results = await bulk_update_metadata_async(updates)
+        ```
     """
     config = config or HuwiseConfig.from_env()
     client = HttpClient(config)
@@ -179,7 +183,9 @@ def bulk_get_metadata(
         Dictionary mapping dataset UID to its metadata.
 
     Example:
-        >>> metadata = bulk_get_metadata(["da_123", "da_456"])
+        ```python
+        metadata = bulk_get_metadata(["da_123", "da_456"])
+        ```
     """
     config = config or HuwiseConfig.from_env()
     client = HttpClient(config)

@@ -26,16 +26,22 @@ class HuwiseDataset:
         uid: The unique string identifier of the dataset.
         config: Optional HuwiseConfig (uses default if not provided).
 
-    Example:
-        >>> # Create and modify a dataset
-        >>> dataset = HuwiseDataset(uid="da_abc123")
-        >>> dataset.set_title("New Title", publish=False) \\
-        ...        .set_description("Description") \\
-        ...        .publish()
+    Examples:
+        Create and modify a dataset with method chaining:
 
-        >>> # Create from numeric ID
-        >>> dataset = HuwiseDataset.from_id("12345")
-        >>> title = dataset.get_title()
+        ```python
+        dataset = HuwiseDataset(uid="da_abc123")
+        dataset.set_title("New Title", publish=False) \
+               .set_description("Description") \
+               .publish()
+        ```
+
+        Create from a numeric ID and read metadata:
+
+        ```python
+        dataset = HuwiseDataset.from_id("12345")
+        title = dataset.get_title()
+        ```
     """
 
     uid: str
