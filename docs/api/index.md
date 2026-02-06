@@ -2,6 +2,11 @@
 
 This section documents the public API of huwise-utils-py.
 
+!!! info "Huwise Automation API"
+    This library wraps the [Huwise Automation API](https://help.opendatasoft.com/apis/ods-automation-v1/). 
+    For detailed information about available endpoints, request/response schemas, and the underlying 
+    API capabilities, refer to the [official API documentation](https://help.opendatasoft.com/apis/ods-automation-v1/).
+
 ## Core Components
 
 The library provides these main components:

@@ -106,6 +106,16 @@ To use `huwise-utils-py`, create an API key with these permissions:
 
 Full documentation is available at [opendatabs.github.io/huwise-utils-py](https://opendatabs.github.io/huwise-utils-py).
 
+## API Reference
+
+This library is a Python client for the [Huwise Automation API](https://help.opendatasoft.com/apis/ods-automation-v1/). The Automation API enables programmatic management of datasets, metadata, resources, security, and more on Huwise (ex Opendatasoft) portals.
+
+For the complete API specification including all available endpoints, request/response schemas, and authentication details, see the [official Automation API documentation](https://help.opendatasoft.com/apis/ods-automation-v1/).
+
+## Related Projects
+
+- **[odsAutomationR](https://github.com/ogdtg/odsAutomationR)** - An R package for accessing the Automation API, developed by the Canton of Thurgau. If you're working in R, this package provides similar functionality.
+
 ## Further Links
 
 - [GitHub Repository](https://github.com/opendatabs/huwise-utils-py)

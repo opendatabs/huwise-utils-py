@@ -75,6 +75,23 @@ HUWISE_DOMAIN=data.bs.ch
 HUWISE_API_TYPE=automation/v1.0
 ```
 
+## API Reference
+
+This library is a Python client for the [Huwise Automation API](https://help.opendatasoft.com/apis/ods-automation-v1/). The Automation API enables programmatic management of:
+
+- **Datasets** - Create, update, publish, and delete datasets
+- **Metadata** - Manage dataset metadata across templates (default, visualization, internal, custom)
+- **Resources** - Upload, update, and manage data sources (CSV, JSON, HTTP, FTP, etc.)
+- **Security** - Configure access rules for users and groups
+- **Fields** - Define field types, descriptions, and annotations
+- **Attachments** - Manage supplementary files
+
+For the complete API specification, see the [official Automation API documentation](https://help.opendatasoft.com/apis/ods-automation-v1/).
+
+## Related Projects
+
+- **[odsAutomationR](https://github.com/ogdtg/odsAutomationR)** - An R package for accessing the Automation API, developed by the Canton of Thurgau. If you're working in R, this package provides similar functionality.
+
 ## Note on Previous Package
 
 This package replaces the archived `ods-utils-py` repository. If you're migrating from the old package, see the [Migration Guide](migration.md) for details on the changes.
@@ -83,5 +100,5 @@ This package replaces the archived `ods-utils-py` repository. If you're migratin
 
 - [GitHub Repository](https://github.com/opendatabs/huwise-utils-py)
 - [PyPI Package](https://pypi.org/project/huwise-utils-py/)
-- [Huwise API Documentation](https://help.opendatasoft.com/apis/ods-automation-v1/)
+- [Huwise Automation API Documentation](https://help.opendatasoft.com/apis/ods-automation-v1/)
 - [DCC Python Coding Standards](https://dcc-bs.github.io/documentation/coding/python.html)
