@@ -95,21 +95,6 @@ dataset.set_title("New Title", publish=False) \
 
 This is more efficient than calling each setter with `publish=True` because it only makes one publish API call instead of six.
 
-## License Map
-
-The `LICENSE_MAP` constant maps internal Huwise license IDs to their URLs:
-
-```python
-from huwise_utils_py import LICENSE_MAP
-
-# Example: look up a license URL
-url = LICENSE_MAP["5sylls5"]  # "https://creativecommons.org/licenses/by/4.0/"
-```
-
-::: huwise_utils_py.dataset.LICENSE_MAP
-    options:
-      show_root_heading: true
-
 ## API Reference
 
 ::: huwise_utils_py.dataset.HuwiseDataset
