@@ -17,9 +17,7 @@ from huwise_utils_py.http import (
 class TestHttpClient:
     """Tests for HttpClient class."""
 
-    def test_http_client_get_calls_correct_url(
-        self, mock_config: HuwiseConfig
-    ) -> None:
+    def test_http_client_get_calls_correct_url(self, mock_config: HuwiseConfig) -> None:
         """Test that GET request uses correct URL."""
         client = HttpClient(mock_config)
 
@@ -38,9 +36,7 @@ class TestHttpClient:
             call_args = mock_instance.get.call_args
             assert "/datasets/da_123" in call_args[0][0]
 
-    def test_http_client_post_calls_correct_url(
-        self, mock_config: HuwiseConfig
-    ) -> None:
+    def test_http_client_post_calls_correct_url(self, mock_config: HuwiseConfig) -> None:
         """Test that POST request uses correct URL."""
         client = HttpClient(mock_config)
 
@@ -57,9 +53,7 @@ class TestHttpClient:
 
             mock_instance.post.assert_called_once()
 
-    def test_http_client_uses_config_headers(
-        self, mock_config: HuwiseConfig
-    ) -> None:
+    def test_http_client_uses_config_headers(self, mock_config: HuwiseConfig) -> None:
         """Test that requests include authorization headers."""
         client = HttpClient(mock_config)
 
@@ -84,6 +78,7 @@ class TestRetryDecorator:
 
     def test_retry_returns_result_on_success(self) -> None:
         """Test that retry returns result when function succeeds."""
+
         @retry(ValueError, tries=3)
         def always_succeeds():
             return "success"
@@ -109,6 +104,7 @@ class TestRetryDecorator:
 
     def test_retry_raises_after_max_tries(self) -> None:
         """Test that retry raises exception after max tries."""
+
         @retry(ValueError, tries=2, delay=0.01)
         def always_fails():
             raise ValueError("permanent failure")

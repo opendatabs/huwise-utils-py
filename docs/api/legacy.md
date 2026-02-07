@@ -120,7 +120,7 @@ dataset.set_title("New Title", publish=False) \
 | `set_dataset_language()` | Set dataset language |
 | `set_dataset_publisher()` | Set dataset publisher |
 | `set_dataset_theme()` | Set dataset theme |
-| `set_dataset_license()` | Set dataset license |
+| `set_dataset_license()` | Set dataset license (supports optional `license_name` for the human-readable string) |
 | `set_dataset_metadata_temporal_period()` | Set both dates |
 | `set_dataset_metadata_temporal_coverage_start_date()` | Set start date |
 | `set_dataset_metadata_temporal_coverage_end_date()` | Set end date |

@@ -153,19 +153,23 @@ def set_dataset_license(
     license_id: str,
     dataset_id: str | None = None,
     dataset_uid: str | None = None,
+    license_name: str | None = None,
     publish: bool = True,
 ) -> None:
     """Set the license of a dataset.
 
     Args:
-        license_id: License identifier.
+        license_id: License identifier (e.g. ``"5sylls5"``).
         dataset_id: The numeric identifier of the dataset.
         dataset_uid: The unique string identifier (UID) of the dataset.
+        license_name: Optional human-readable name (e.g. ``"CC BY 4.0"``).
+            If provided, ``default.license`` is updated alongside
+            ``default.license_id``.
         publish: Whether to publish after updating.
     """
     uid = validate_dataset_identifier(dataset_id, dataset_uid)
     dataset = HuwiseDataset(uid=uid)
-    dataset.set_license(license_id, publish=publish)
+    dataset.set_license(license_id, license_name=license_name, publish=publish)
 
 
 def set_dataset_metadata_temporal_coverage_start_date(
