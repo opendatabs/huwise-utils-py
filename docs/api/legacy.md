@@ -25,18 +25,14 @@ from huwise_utils_py import (
     get_dataset_metadata,
     get_number_of_datasets,
     get_all_dataset_ids,
-    get_uid_by_id,
 )
 
-# Get metadata by UID
-title = get_dataset_title(dataset_uid="da_abc123")
-description = get_dataset_description(dataset_uid="da_abc123")
-
-# Get metadata by ID
-title = get_dataset_title(dataset_id="12345")
+# Get metadata by dataset ID
+title = get_dataset_title(dataset_id="100123")
+description = get_dataset_description(dataset_id="100123")
 
 # Get all metadata
-metadata = get_dataset_metadata(dataset_uid="da_abc123")
+metadata = get_dataset_metadata(dataset_id="100123")
 
 # Get dataset counts and IDs
 count = get_number_of_datasets()
@@ -58,14 +54,14 @@ from huwise_utils_py import (
 )
 
 # Set metadata (publishes by default)
-set_dataset_title("New Title", dataset_uid="da_abc123")
+set_dataset_title("New Title", dataset_id="100123")
 
 # Set without publishing
-set_dataset_title("New Title", dataset_uid="da_abc123", publish=False)
+set_dataset_title("New Title", dataset_id="100123", publish=False)
 
 # Publish/unpublish
-set_dataset_public(dataset_uid="da_abc123", should_be_public=True)
-set_dataset_public(dataset_uid="da_abc123", should_be_public=False)
+set_dataset_public(dataset_id="100123", should_be_public=True)
+set_dataset_public(dataset_id="100123", should_be_public=False)
 ```
 
 ## Comparison with HuwiseDataset
@@ -74,14 +70,14 @@ set_dataset_public(dataset_uid="da_abc123", should_be_public=False)
 # Function-based approach
 from huwise_utils_py import get_dataset_title, set_dataset_title
 
-title = get_dataset_title(dataset_uid="da_123")
-set_dataset_title("New Title", dataset_uid="da_123")
-set_dataset_description("Desc", dataset_uid="da_123")
+title = get_dataset_title(dataset_id="100123")
+set_dataset_title("New Title", dataset_id="100123")
+set_dataset_description("Desc", dataset_id="100123")
 
 # HuwiseDataset approach (recommended for multiple operations)
 from huwise_utils_py import HuwiseDataset
 
-dataset = HuwiseDataset(uid="da_123")
+dataset = HuwiseDataset.from_id("100123")
 title = dataset.get_title()
 dataset.set_title("New Title", publish=False) \
        .set_description("Desc") \
@@ -94,7 +90,6 @@ dataset.set_title("New Title", publish=False) \
 
 | Function | Description |
 |----------|-------------|
-| `get_uid_by_id(dataset_id)` | Get UID from numeric ID |
 | `get_all_dataset_ids()` | Get all dataset IDs |
 | `get_number_of_datasets()` | Get total dataset count |
 | `get_dataset_metadata()` | Get full metadata |

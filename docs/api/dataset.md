@@ -18,17 +18,14 @@ Object-oriented interface for dataset operations with method chaining support.
 ```python
 from huwise_utils_py import HuwiseDataset
 
-# From a UID (direct)
-dataset = HuwiseDataset(uid="da_abc123")
-
-# From a numeric ID (resolves automatically)
-dataset = HuwiseDataset.from_id("12345")
+# From a dataset ID
+dataset = HuwiseDataset.from_id("100123")
 
 # With custom configuration
 from huwise_utils_py import HuwiseConfig
 
 config = HuwiseConfig(api_key="key", domain="custom.domain.com")
-dataset = HuwiseDataset(uid="da_abc123", config=config)
+dataset = HuwiseDataset.from_id("100123", config=config)
 ```
 
 ### Reading Metadata
@@ -81,7 +78,7 @@ dataset.refresh()
 All setter methods return `self`, enabling fluent interfaces:
 
 ```python
-dataset = HuwiseDataset(uid="da_123")
+dataset = HuwiseDataset.from_id("100123")
 
 # Chain all updates, then publish once at the end
 dataset.set_title("New Title", publish=False) \
@@ -95,21 +92,6 @@ dataset.set_title("New Title", publish=False) \
 
 This is more efficient than calling each setter with `publish=True` because it only makes one publish API call instead of six.
 
-## License Map
-
-The `LICENSE_MAP` constant maps internal Huwise license IDs to their URLs:
-
-```python
-from huwise_utils_py import LICENSE_MAP
-
-# Example: look up a license URL
-url = LICENSE_MAP["5sylls5"]  # "https://creativecommons.org/licenses/by/4.0/"
-```
-
-::: huwise_utils_py.dataset.LICENSE_MAP
-    options:
-      show_root_heading: true
-
 ## API Reference
 
 ::: huwise_utils_py.dataset.HuwiseDataset
@@ -117,7 +99,6 @@ url = LICENSE_MAP["5sylls5"]  # "https://creativecommons.org/licenses/by/4.0/"
       show_root_heading: true
       show_source: true
       members:
-        - uid
         - config
         - from_id
         - get_metadata

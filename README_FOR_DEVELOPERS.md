@@ -181,7 +181,12 @@ def get_new_field(
     dataset_id: str | None = None,
     dataset_uid: str | None = None,
 ) -> str | None:
-    """Get the new field of a dataset."""
+    """Get the new field of a dataset.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+    """
     uid = validate_dataset_identifier(dataset_id, dataset_uid)
     dataset = HuwiseDataset(uid=uid)
     return dataset.get_new_field()

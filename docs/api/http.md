@@ -50,8 +50,8 @@ async def fetch_datasets():
     async with client.session() as session:
         # Make concurrent requests
         tasks = [
-            session.get(f"{config.base_url}/datasets/{uid}")
-            for uid in ["da_123", "da_456", "da_789"]
+            session.get(f"{config.base_url}/datasets/{dataset_id}")
+            for dataset_id in ["100123", "100456", "100789"]
         ]
         responses = await asyncio.gather(*tasks)
         return [r.json() for r in responses]

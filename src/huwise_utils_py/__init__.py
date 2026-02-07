@@ -9,7 +9,7 @@ Examples:
     ```python
     from huwise_utils_py import HuwiseDataset
 
-    dataset = HuwiseDataset(uid="da_abc123")
+    dataset = HuwiseDataset.from_id("100123")
     dataset.set_title("New Title").set_description("Description").publish()
     ```
 
@@ -18,7 +18,7 @@ Examples:
     ```python
     from huwise_utils_py import get_dataset_title, set_dataset_title
 
-    title = get_dataset_title(dataset_uid="da_abc123")
+    title = get_dataset_title(dataset_id="100123")
     ```
 """
 
@@ -67,7 +67,7 @@ from huwise_utils_py.logger import get_logger, init_logger
 # Utilities
 from huwise_utils_py.utils import retry, validate_dataset_identifier
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 __all__ = [
     "LICENSE_MAP",

@@ -101,7 +101,7 @@ Object-oriented interface with method chaining:
 ```python
 from huwise_utils_py import HuwiseDataset
 
-dataset = HuwiseDataset(uid="da_123")
+dataset = HuwiseDataset.from_id("100123")
 
 # Method chaining for efficient updates
 dataset.set_title("Title", publish=False) \
@@ -117,7 +117,7 @@ For better performance when working with many datasets:
 import asyncio
 from huwise_utils_py import bulk_get_metadata_async
 
-metadata = asyncio.run(bulk_get_metadata_async(uids))
+metadata = asyncio.run(bulk_get_metadata_async(dataset_ids=["100123", "100456"]))
 ```
 
 ### Structured Logging
@@ -129,7 +129,7 @@ from huwise_utils_py import init_logger, get_logger
 
 init_logger()
 logger = get_logger(__name__)
-logger.info("Processing dataset", uid="da_123")
+logger.info("Processing dataset", dataset_id="100123")
 ```
 
 ## Backwards Compatibility

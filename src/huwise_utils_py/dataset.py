@@ -39,19 +39,19 @@ class HuwiseDataset:
         config: Optional HuwiseConfig (uses default if not provided).
 
     Examples:
-        Create and modify a dataset with method chaining:
+        Create from a dataset ID and modify with method chaining:
 
         ```python
-        dataset = HuwiseDataset(uid="da_abc123")
+        dataset = HuwiseDataset.from_id("100123")
         dataset.set_title("New Title", publish=False) \
                .set_description("Description") \
                .publish()
         ```
 
-        Create from a numeric ID and read metadata:
+        Read metadata:
 
         ```python
-        dataset = HuwiseDataset.from_id("12345")
+        dataset = HuwiseDataset.from_id("100123")
         title = dataset.get_title()
         ```
     """
