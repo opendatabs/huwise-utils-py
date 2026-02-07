@@ -60,16 +60,17 @@ from huwise_utils_py.bulk import (
     bulk_update_metadata_async,
 )
 from huwise_utils_py.config import HuwiseConfig
-from huwise_utils_py.dataset import HuwiseDataset
+from huwise_utils_py.dataset import LICENSE_MAP, HuwiseDataset
 from huwise_utils_py.http import AsyncHttpClient, HttpClient
 from huwise_utils_py.logger import get_logger, init_logger
 
 # Utilities
 from huwise_utils_py.utils import retry, validate_dataset_identifier
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 __all__ = [
+    "LICENSE_MAP",
     "AsyncHttpClient",
     "HttpClient",
     # Core components (new API)

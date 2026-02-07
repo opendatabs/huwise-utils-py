@@ -33,9 +33,7 @@ class TestValidateDatasetIdentifier:
             mock_http.return_value = mock_client
 
             mock_response = MagicMock()
-            mock_response.json.return_value = {
-                "results": [{"uid": "da_resolved123"}]
-            }
+            mock_response.json.return_value = {"results": [{"uid": "da_resolved123"}]}
             mock_client.get.return_value = mock_response
 
             with patch("huwise_utils_py.utils.validators.HuwiseConfig") as mock_config:
@@ -64,9 +62,7 @@ class TestValidateDatasetIdentifier:
             mock_http.return_value = mock_client
 
             mock_response = MagicMock()
-            mock_response.json.return_value = {
-                "results": [{"uid": "da_custom123"}]
-            }
+            mock_response.json.return_value = {"results": [{"uid": "da_custom123"}]}
             mock_client.get.return_value = mock_response
 
             result = validate_dataset_identifier(

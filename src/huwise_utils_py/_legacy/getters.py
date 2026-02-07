@@ -8,7 +8,7 @@ from typing import Any
 
 from huwise_utils_py.bulk import bulk_get_dataset_ids
 from huwise_utils_py.config import HuwiseConfig
-from huwise_utils_py.dataset import HuwiseDataset
+from huwise_utils_py.dataset import LICENSE_MAP, HuwiseDataset
 from huwise_utils_py.http import HttpClient
 from huwise_utils_py.utils.validators import validate_dataset_identifier
 
@@ -208,21 +208,8 @@ def get_dataset_license(
     Raises:
         ValueError: If no_license_default_value is a valid license ID.
     """
-    valid_license_ids = [
-        "cc_by",
-        "cc_by_sa",
-        "cc_by_nd",
-        "cc_by_nc",
-        "cc_by_nc_sa",
-        "cc_by_nc_nd",
-        "cc0",
-        "odbl",
-        "pddl",
-        "fr_lo",
-        "ogl",
-    ]
-    if no_license_default_value in valid_license_ids:
-        raise ValueError(f"no_license_default_value must not be a valid license ID: {valid_license_ids}")
+    if no_license_default_value in LICENSE_MAP:
+        raise ValueError(f"no_license_default_value must not be a valid license ID: {list(LICENSE_MAP.keys())}")
 
     uid = validate_dataset_identifier(dataset_id, dataset_uid)
     dataset = HuwiseDataset(uid=uid)

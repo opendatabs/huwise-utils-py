@@ -14,6 +14,18 @@ from huwise_utils_py.logger import get_logger
 
 logger = get_logger(__name__)
 
+# Map of Huwise license_id values to license URLs
+LICENSE_MAP: dict[str, str] = {
+    "4bj8ceb": "https://creativecommons.org/publicdomain/zero/1.0/",  # CC0 1.0
+    "cc_by": "https://creativecommons.org/licenses/by/3.0/ch/",  # CC BY 3.0 CH
+    "5sylls5": "https://creativecommons.org/licenses/by/4.0/",  # CC BY 4.0
+    "t2kf10u": "https://data-bs.ch/stata/dataspot/permalinks/20210113_OSM-Vektordaten.pdf",  # CC BY 3.0 CH + OpenStreetMap
+    "353v4r": "https://data-bs.ch/stata/dataspot/permalinks/20240822-osm-vektordaten.pdf",  # CC BY 4.0 + OpenStreetMap
+    "vzo5u7j": "https://www.gnu.org/licenses/gpl-3.0",  # GNU General Public License 3
+    "r617wgj": "https://www.bs.ch/bvd/grundbuch-und-vermessungsamt/geo/anwendungen/agb",  # Nutzungsbedingungen für Geodaten des Kantons Basel-Stadt
+    "ce0mv1b": "https://opendata.swiss/de/terms-of-use/",  # Freie Nutzung. Quellenangabe ist Pflicht. Kommerzielle Nutzung nur mit Bewilligung des Datenlieferanten zulässig.
+}
+
 
 @dataclass
 class HuwiseDataset:
@@ -98,9 +110,7 @@ class HuwiseDataset:
         metadata = self.get_metadata()
         return metadata.get(template, {}).get(field_name, {}).get("value")
 
-    def _set_metadata_value(
-        self, template: str, field_name: str, value: Any, *, publish: bool = True
-    ) -> Self:
+    def _set_metadata_value(self, template: str, field_name: str, value: Any, *, publish: bool = True) -> Self:
         """Set a specific metadata field value.
 
         Args:
@@ -203,10 +213,18 @@ class HuwiseDataset:
     def get_license(self) -> str | None:
         """Retrieve the dataset license.
 
+        Checks ``internal.license_id`` first (where the platform stores the
+        canonical license ID, e.g. ``"5sylls5"``).  Falls back to
+        ``default.license`` (human-readable string used by older datasets,
+        e.g. ``"CC BY"``).
+
         Returns:
-            The license ID or None if not set.
+            The license identifier/name, or None if neither field is set.
         """
-        return self._get_metadata_value("default", "license_id")
+        value = self._get_metadata_value("internal", "license_id")
+        if value is None:
+            value = self._get_metadata_value("default", "license")
+        return value
 
     def get_custom_view(self) -> dict[str, Any] | None:
         """Retrieve the dataset custom view configuration.
@@ -292,17 +310,61 @@ class HuwiseDataset:
         """
         return self._set_metadata_value("default", "theme_id", theme_id, publish=publish)
 
-    def set_license(self, license_id: str, *, publish: bool = True) -> Self:
+    def set_license(
+        self,
+        license_id: str,
+        *,
+        license_name: str | None = None,
+        publish: bool = True,
+    ) -> Self:
         """Set the dataset license.
 
+        Writes ``default.license_id`` (the writable field). The platform
+        then propagates this to ``internal.license_id`` automatically.
+        If *license_name* is provided, also sets ``default.license``
+        (the human-readable string) in the same API request.
+
         Args:
-            license_id: License identifier.
+            license_id: License identifier (e.g. ``"5sylls5"``).
+            license_name: Optional human-readable name (e.g. ``"CC BY 4.0"``).
+                If provided, ``default.license`` is updated alongside
+                ``default.license_id``.
             publish: Whether to publish after updating.
 
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("default", "license_id", license_id, publish=publish)
+        response = self._client.get(f"/datasets/{self.uid}/metadata/")
+        metadata: dict[str, Any] = response.json()
+
+        if "default" not in metadata:
+            metadata["default"] = {}
+
+        # Set the writable license_id (platform propagates to internal.license_id)
+        if "license_id" not in metadata["default"]:
+            metadata["default"]["license_id"] = {}
+        metadata["default"]["license_id"]["value"] = license_id
+
+        # Optionally set the human-readable license string
+        if license_name is not None:
+            if "license" not in metadata["default"]:
+                metadata["default"]["license"] = {}
+            metadata["default"]["license"]["value"] = license_name
+
+        self._wait_for_idle()
+        self._client.put(f"/datasets/{self.uid}/metadata/", json=metadata)
+
+        logger.info(
+            "Updated license",
+            uid=self.uid,
+            license_id=license_id,
+            license_name=license_name,
+        )
+
+        if publish:
+            self.publish()
+
+        return self
 
     # =========================================================================
     # Actions

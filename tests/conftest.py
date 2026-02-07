@@ -131,6 +131,7 @@ def sample_metadata() -> dict:
             "modified_updates_on_data_change": {"value": False},
             "geographic_reference_auto": {"value": False},
             "publisher": {"value": "DCC Data Competence Center"},
+            "license": {"value": "CC BY 4.0"},
         },
         "custom": {
             "publizierende-organisation": {"value": "Präsidialdepartement"},

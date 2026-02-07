@@ -157,11 +157,7 @@ class TestMethodChainingIntegration:
             test_title = f"Chained Test Title {int(time.time())}"
             test_keywords = ["chained", "test", "keywords"]
 
-            result = (
-                dataset.set_title(test_title, publish=False)
-                .set_keywords(test_keywords, publish=False)
-                .publish()
-            )
+            result = dataset.set_title(test_title, publish=False).set_keywords(test_keywords, publish=False).publish()
 
             # Verify chaining returns self
             assert result is dataset
@@ -172,9 +168,7 @@ class TestMethodChainingIntegration:
 
         finally:
             # Restore using chaining
-            dataset.set_title(original_title, publish=False).set_keywords(
-                original_keywords, publish=True
-            )
+            dataset.set_title(original_title, publish=False).set_keywords(original_keywords, publish=True)
 
     def test_method_chaining_returns_self(self) -> None:
         """Test that all setter methods return self for chaining."""
@@ -257,9 +251,7 @@ class TestLegacySetterFunctionsIntegration:
         try:
             # Update
             test_title = f"Function Test Title {int(time.time())}"
-            set_dataset_title(
-                test_title, dataset_uid=TEST_DATASET_UID, publish=False
-            )
+            set_dataset_title(test_title, dataset_uid=TEST_DATASET_UID, publish=False)
 
             # Verify
             new_title = get_dataset_title(dataset_uid=TEST_DATASET_UID)
@@ -267,9 +259,7 @@ class TestLegacySetterFunctionsIntegration:
 
         finally:
             # Restore
-            set_dataset_title(
-                original_title, dataset_uid=TEST_DATASET_UID, publish=True
-            )
+            set_dataset_title(original_title, dataset_uid=TEST_DATASET_UID, publish=True)
 
     def test_set_dataset_keywords_function(self) -> None:
         """Test set_dataset_keywords function works correctly."""
@@ -281,9 +271,7 @@ class TestLegacySetterFunctionsIntegration:
         try:
             # Update
             test_keywords = ["function", "test", f"ts-{int(time.time())}"]
-            set_dataset_keywords(
-                test_keywords, dataset_uid=TEST_DATASET_UID, publish=False
-            )
+            set_dataset_keywords(test_keywords, dataset_uid=TEST_DATASET_UID, publish=False)
 
             # Verify
             new_keywords = get_dataset_keywords(dataset_uid=TEST_DATASET_UID)
@@ -291,6 +279,4 @@ class TestLegacySetterFunctionsIntegration:
 
         finally:
             # Restore
-            set_dataset_keywords(
-                original_keywords, dataset_uid=TEST_DATASET_UID, publish=True
-            )
+            set_dataset_keywords(original_keywords, dataset_uid=TEST_DATASET_UID, publish=True)
