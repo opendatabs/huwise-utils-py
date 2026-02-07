@@ -18,17 +18,12 @@ Validates and resolves dataset identifiers:
 ```python
 from huwise_utils_py import validate_dataset_identifier
 
-# With UID (returns as-is)
-uid = validate_dataset_identifier(dataset_uid="da_abc123")
-# Returns: "da_abc123"
-
-# With numeric ID (resolves to UID via API)
-uid = validate_dataset_identifier(dataset_id="12345")
-# Returns: "da_resolved_uid"
+# Resolve a numeric dataset ID
+resolved = validate_dataset_identifier(dataset_id="100123")
 
 # Validation errors
 validate_dataset_identifier()  # ValueError: neither provided
-validate_dataset_identifier(dataset_id="1", dataset_uid="da_1")  # ValueError: both provided
+validate_dataset_identifier(dataset_id="100123", dataset_uid="da_abc")  # ValueError: both provided
 ```
 
 ## Decorators

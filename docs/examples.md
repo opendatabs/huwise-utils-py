@@ -9,8 +9,8 @@ Common usage patterns and code examples.
 ```python
 from huwise_utils_py import HuwiseDataset
 
-# Create dataset instance
-dataset = HuwiseDataset(uid="da_abc123")
+# Create dataset instance from its ID
+dataset = HuwiseDataset.from_id("100123")
 
 # Get basic information
 print(f"Title: {dataset.get_title()}")
@@ -25,7 +25,7 @@ print(f"Publisher: {dataset.get_publisher()}")
 ```python
 from huwise_utils_py import HuwiseDataset
 
-dataset = HuwiseDataset(uid="da_abc123")
+dataset = HuwiseDataset.from_id("100123")
 
 # Single update
 dataset.set_title("New Title")
@@ -40,15 +40,11 @@ dataset.set_title("New Title", publish=False) \
 ### Working with Dataset IDs
 
 ```python
-from huwise_utils_py import HuwiseDataset, get_uid_by_id
+from huwise_utils_py import HuwiseDataset
 
-# Create from numeric ID
-dataset = HuwiseDataset.from_id("12345")
-print(f"UID: {dataset.uid}")
-
-# Or resolve manually
-uid = get_uid_by_id("12345")
-dataset = HuwiseDataset(uid=uid)
+# Create from a dataset ID
+dataset = HuwiseDataset.from_id("100123")
+print(f"Title: {dataset.get_title()}")
 ```
 
 ## Bulk Operations
@@ -58,13 +54,13 @@ dataset = HuwiseDataset(uid=uid)
 ```python
 from huwise_utils_py import bulk_get_metadata
 
-uids = ["da_123", "da_456", "da_789"]
-metadata = bulk_get_metadata(uids)
+dataset_ids = ["100123", "100456", "100789"]
+metadata = bulk_get_metadata(dataset_ids=dataset_ids)
 
-for uid, meta in metadata.items():
+for dataset_id, meta in metadata.items():
     default = meta.get("default", {})
     title = default.get("title", {}).get("value", "No title")
-    print(f"{uid}: {title}")
+    print(f"{dataset_id}: {title}")
 ```
 
 ### Async Bulk Operations
@@ -77,12 +73,8 @@ async def fetch_all_metadata():
     # Get all dataset IDs
     ids = await bulk_get_dataset_ids_async(max_datasets=100)
 
-    # Convert to UIDs (you'd need to resolve these)
-    # For this example, assume we have UIDs
-    uids = ids[:50]  # First 50
-
     # Fetch all metadata concurrently
-    metadata = await bulk_get_metadata_async(uids)
+    metadata = await bulk_get_metadata_async(dataset_ids=ids[:50])
     return metadata
 
 # Run
@@ -96,18 +88,18 @@ print(f"Fetched metadata for {len(all_metadata)} datasets")
 from huwise_utils_py import bulk_update_metadata
 
 updates = [
-    {"dataset_uid": "da_123", "title": "Title 1", "description": "Desc 1"},
-    {"dataset_uid": "da_456", "title": "Title 2", "description": "Desc 2"},
-    {"dataset_uid": "da_789", "title": "Title 3", "description": "Desc 3"},
+    {"dataset_id": "100123", "title": "Title 1", "description": "Desc 1"},
+    {"dataset_id": "100456", "title": "Title 2", "description": "Desc 2"},
+    {"dataset_id": "100789", "title": "Title 3", "description": "Desc 3"},
 ]
 
 results = bulk_update_metadata(updates, publish=True)
 
-for uid, result in results.items():
+for dataset_id, result in results.items():
     if result["status"] == "success":
-        print(f"✓ {uid}: Updated {result['fields_updated']}")
+        print(f"✓ {dataset_id}: Updated {result['fields_updated']}")
     else:
-        print(f"✗ {uid}: {result['error']}")
+        print(f"✗ {dataset_id}: {result['error']}")
 ```
 
 ## Custom Configuration
@@ -130,8 +122,8 @@ staging_config = HuwiseConfig(
 )
 
 # Use different configs
-prod_dataset = HuwiseDataset(uid="da_123", config=prod_config)
-staging_dataset = HuwiseDataset(uid="da_456", config=staging_config)
+prod_dataset = HuwiseDataset.from_id("100123", config=prod_config)
+staging_dataset = HuwiseDataset.from_id("100456", config=staging_config)
 ```
 
 ### Testing with Mock Config
@@ -152,7 +144,7 @@ with patch("huwise_utils_py.http.HttpClient") as mock:
         "metadata": {"default": {"title": {"value": "Test"}}}
     }
 
-    dataset = HuwiseDataset(uid="da_test", config=test_config)
+    dataset = HuwiseDataset.from_id("100123", config=test_config)
     title = dataset.get_title()
     assert title == "Test"
 ```
@@ -172,7 +164,7 @@ logger = get_logger(__name__)
 
 # Log operations
 logger.info("Starting data sync")
-logger.debug("Processing dataset", uid="da_123")
+logger.debug("Processing dataset", dataset_id="100123")
 logger.warning("Rate limit approaching", remaining=10)
 ```
 
@@ -184,24 +176,24 @@ from huwise_utils_py import init_logger, get_logger, HuwiseDataset
 init_logger()
 logger = get_logger(__name__)
 
-def sync_dataset(uid: str) -> None:
-    logger.info("Starting sync", uid=uid)
+def sync_dataset(dataset_id: str) -> None:
+    logger.info("Starting sync", dataset_id=dataset_id)
 
     try:
-        dataset = HuwiseDataset(uid=uid)
+        dataset = HuwiseDataset.from_id(dataset_id)
         metadata = dataset.get_metadata()
 
         logger.info(
             "Sync completed",
-            uid=uid,
+            dataset_id=dataset_id,
             title=metadata.get("default", {}).get("title", {}).get("value"),
             field_count=len(metadata),
         )
     except Exception as e:
-        logger.error("Sync failed", uid=uid, error=str(e))
+        logger.error("Sync failed", dataset_id=dataset_id, error=str(e))
         raise
 
-sync_dataset("da_123")
+sync_dataset("100123")
 ```
 
 ## Error Handling
@@ -213,7 +205,7 @@ import httpx
 from huwise_utils_py import HuwiseDataset
 
 try:
-    dataset = HuwiseDataset(uid="da_invalid")
+    dataset = HuwiseDataset.from_id("999999")
     metadata = dataset.get_metadata()
 except httpx.HTTPStatusError as e:
     if e.response.status_code == 404:
@@ -232,16 +224,10 @@ except httpx.ConnectError:
 from huwise_utils_py import validate_dataset_identifier
 
 try:
-    # This will raise ValueError
-    uid = validate_dataset_identifier()
+    # This will raise ValueError (no identifier provided)
+    validate_dataset_identifier()
 except ValueError as e:
     print(f"Validation error: {e}")
-
-try:
-    # This will also raise ValueError
-    uid = validate_dataset_identifier(dataset_id="123", dataset_uid="da_123")
-except ValueError as e:
-    print(f"Cannot specify both: {e}")
 ```
 
 ## Integration Patterns
@@ -262,9 +248,9 @@ from huwise_utils_py import HuwiseConfig, HuwiseDataset
 def get_huwise_config():
     return HuwiseConfig(**settings.HUWISE_CONFIG)
 
-def update_dataset(uid: str, title: str) -> None:
+def update_dataset(dataset_id: str, title: str) -> None:
     config = get_huwise_config()
-    dataset = HuwiseDataset(uid=uid, config=config)
+    dataset = HuwiseDataset.from_id(dataset_id, config=config)
     dataset.set_title(title)
 ```
 
@@ -279,8 +265,8 @@ app = FastAPI()
 def get_config() -> HuwiseConfig:
     return HuwiseConfig.from_env()
 
-@app.get("/datasets/{uid}")
-async def get_dataset(uid: str, config: HuwiseConfig = Depends(get_config)):
-    dataset = HuwiseDataset(uid=uid, config=config)
+@app.get("/datasets/{dataset_id}")
+async def get_dataset(dataset_id: str, config: HuwiseConfig = Depends(get_config)):
+    dataset = HuwiseDataset.from_id(dataset_id, config=config)
     return dataset.get_metadata()
 ```

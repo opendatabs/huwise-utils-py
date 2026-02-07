@@ -56,7 +56,7 @@ test_config = HuwiseConfig(
 )
 
 # Inject into components
-dataset = HuwiseDataset(uid="da_123", config=test_config)
+dataset = HuwiseDataset.from_id("100123", config=test_config)
 ```
 
 ## API Reference

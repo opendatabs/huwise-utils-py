@@ -20,12 +20,12 @@ Bulk operations provide significant performance improvements when working with m
 from huwise_utils_py import bulk_get_metadata, bulk_update_metadata, bulk_get_dataset_ids
 
 # Get metadata for multiple datasets
-metadata = bulk_get_metadata(["da_123", "da_456", "da_789"])
+metadata = bulk_get_metadata(dataset_ids=["100123", "100456", "100789"])
 
 # Update multiple datasets
 updates = [
-    {"dataset_uid": "da_123", "title": "New Title 1"},
-    {"dataset_uid": "da_456", "title": "New Title 2"},
+    {"dataset_id": "100123", "title": "New Title 1"},
+    {"dataset_id": "100456", "title": "New Title 2"},
 ]
 results = bulk_update_metadata(updates)
 
@@ -45,12 +45,12 @@ from huwise_utils_py import (
 
 async def main():
     # Fetch metadata concurrently
-    metadata = await bulk_get_metadata_async(["da_123", "da_456", "da_789"])
+    metadata = await bulk_get_metadata_async(dataset_ids=["100123", "100456", "100789"])
 
     # Update concurrently
     updates = [
-        {"dataset_uid": "da_123", "title": "New Title 1"},
-        {"dataset_uid": "da_456", "title": "New Title 2"},
+        {"dataset_id": "100123", "title": "New Title 1"},
+        {"dataset_id": "100456", "title": "New Title 2"},
     ]
     results = await bulk_update_metadata_async(updates)
 
@@ -67,12 +67,12 @@ asyncio.run(main())
 ```python
 from huwise_utils_py import bulk_get_metadata
 
-uids = ["da_123", "da_456", "da_789"]
-metadata = bulk_get_metadata(uids)
+dataset_ids = ["100123", "100456", "100789"]
+metadata = bulk_get_metadata(dataset_ids=dataset_ids)
 
-for uid, meta in metadata.items():
+for dataset_id, meta in metadata.items():
     title = meta.get("default", {}).get("title", {}).get("value", "No title")
-    print(f"{uid}: {title}")
+    print(f"{dataset_id}: {title}")
 ```
 
 ### Bulk Update with Error Handling
@@ -81,18 +81,18 @@ for uid, meta in metadata.items():
 from huwise_utils_py import bulk_update_metadata
 
 updates = [
-    {"dataset_uid": "da_123", "title": "Title 1", "description": "Desc 1"},
-    {"dataset_uid": "da_456", "title": "Title 2", "description": "Desc 2"},
-    {"dataset_uid": "da_invalid", "title": "Will fail"},
+    {"dataset_id": "100123", "title": "Title 1", "description": "Desc 1"},
+    {"dataset_id": "100456", "title": "Title 2", "description": "Desc 2"},
+    {"dataset_id": "100789", "title": "Will fail"},
 ]
 
 results = bulk_update_metadata(updates, publish=True)
 
-for uid, result in results.items():
+for dataset_id, result in results.items():
     if result["status"] == "success":
-        print(f"{uid}: Updated {result['fields_updated']}")
+        print(f"{dataset_id}: Updated {result['fields_updated']}")
     else:
-        print(f"{uid}: Failed - {result['error']}")
+        print(f"{dataset_id}: Failed - {result['error']}")
 ```
 
 ### Get All Dataset IDs with Filtering
@@ -122,8 +122,8 @@ async def fetch_from_multiple_domains():
 
     # Fetch concurrently from both domains
     metadata_a, metadata_b = await asyncio.gather(
-        bulk_get_metadata_async(["da_1", "da_2"], config=config_a),
-        bulk_get_metadata_async(["da_3", "da_4"], config=config_b),
+        bulk_get_metadata_async(dataset_ids=["100123", "100456"], config=config_a),
+        bulk_get_metadata_async(dataset_ids=["100789"], config=config_b),
     )
 
     return {**metadata_a, **metadata_b}

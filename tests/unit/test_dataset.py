@@ -320,8 +320,7 @@ class TestHuwiseDatasetMethodChaining:
         mock_dataset._client.post.return_value = MagicMock()
 
         result = (
-            mock_dataset
-            .set_title("Title", publish=False)
+            mock_dataset.set_title("Title", publish=False)
             .set_description("Description", publish=False)
             .set_keywords(["test"], publish=False)
             .publish()

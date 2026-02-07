@@ -18,17 +18,14 @@ Object-oriented interface for dataset operations with method chaining support.
 ```python
 from huwise_utils_py import HuwiseDataset
 
-# From a UID (direct)
-dataset = HuwiseDataset(uid="da_abc123")
-
-# From a numeric ID (resolves automatically)
-dataset = HuwiseDataset.from_id("12345")
+# From a dataset ID
+dataset = HuwiseDataset.from_id("100123")
 
 # With custom configuration
 from huwise_utils_py import HuwiseConfig
 
 config = HuwiseConfig(api_key="key", domain="custom.domain.com")
-dataset = HuwiseDataset(uid="da_abc123", config=config)
+dataset = HuwiseDataset.from_id("100123", config=config)
 ```
 
 ### Reading Metadata
@@ -81,7 +78,7 @@ dataset.refresh()
 All setter methods return `self`, enabling fluent interfaces:
 
 ```python
-dataset = HuwiseDataset(uid="da_123")
+dataset = HuwiseDataset.from_id("100123")
 
 # Chain all updates, then publish once at the end
 dataset.set_title("New Title", publish=False) \
@@ -102,7 +99,6 @@ This is more efficient than calling each setter with `publish=True` because it o
       show_root_heading: true
       show_source: true
       members:
-        - uid
         - config
         - from_id
         - get_metadata

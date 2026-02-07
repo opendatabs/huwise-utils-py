@@ -20,7 +20,8 @@ logger = get_logger(__name__)
 
 
 async def bulk_get_metadata_async(
-    dataset_uids: list[str],
+    dataset_ids: list[str] | None = None,
+    dataset_uids: list[str] | None = None,
     config: HuwiseConfig | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Fetch metadata for multiple datasets concurrently.
@@ -28,36 +29,61 @@ async def bulk_get_metadata_async(
     Uses async HTTP requests to fetch metadata in parallel, providing
     significant performance improvements over sequential requests.
 
+    Either ``dataset_ids`` or ``dataset_uids`` must be provided, but not both.
+
     Args:
+        dataset_ids: List of numeric dataset IDs to fetch metadata for.
         dataset_uids: List of dataset UIDs to fetch metadata for.
         config: Optional HuwiseConfig instance.
 
     Returns:
-        Dictionary mapping dataset UID to its metadata.
+        Dictionary mapping dataset ID to its metadata.
+
+    Raises:
+        ValueError: If both or neither identifier lists are provided.
 
     Example:
         ```python
-        metadata = await bulk_get_metadata_async(["da_123", "da_456"])
-        for uid, meta in metadata.items():
-            print(f"{uid}: {meta.get('default', {}).get('title', {}).get('value')}")
+        metadata = await bulk_get_metadata_async(dataset_ids=["100123", "100456"])
+        for dataset_id, meta in metadata.items():
+            print(f"{dataset_id}: {meta.get('default', {}).get('title', {}).get('value')}")
         ```
     """
+    if dataset_ids is not None and dataset_uids is not None:
+        raise ValueError("dataset_ids and dataset_uids are mutually exclusive")
+    if dataset_ids is None and dataset_uids is None:
+        raise ValueError("Either dataset_ids or dataset_uids must be specified")
+
     config = config or HuwiseConfig.from_env()
     client = AsyncHttpClient(config)
 
-    logger.info("Starting bulk metadata fetch", dataset_count=len(dataset_uids))
+    # Resolve dataset_ids to uids if needed, building a uid -> id map
+    id_to_uid: dict[str, str] = {}
+    uids: list[str] = []
+    if dataset_ids is not None:
+        sync_client = HttpClient(config)
+        for dataset_id in dataset_ids:
+            response = sync_client.get("/datasets/", params={"dataset_id": dataset_id})
+            uid: str = response.json()["results"][0]["uid"]
+            uids.append(uid)
+            id_to_uid[uid] = dataset_id
+    elif dataset_uids is not None:
+        uids = dataset_uids
+
+    logger.info("Starting bulk metadata fetch", dataset_count=len(uids))
 
     async with client.session() as session:
-        tasks = [session.get(f"{config.base_url}/datasets/{uid}") for uid in dataset_uids]
+        tasks = [session.get(f"{config.base_url}/datasets/{uid}") for uid in uids]
         responses = await asyncio.gather(*tasks, return_exceptions=True)
 
     result: dict[str, dict[str, Any]] = {}
-    for uid, response in zip(dataset_uids, responses, strict=True):
+    for uid, response in zip(uids, responses, strict=True):
+        key = id_to_uid.get(uid, uid)
         if isinstance(response, Exception):
-            logger.warning("Failed to fetch metadata", uid=uid, error=str(response))
-            result[uid] = {"error": str(response)}
+            logger.warning("Failed to fetch metadata", dataset_id=key, error=str(response))
+            result[key] = {"error": str(response)}
         else:
-            result[uid] = response.json()["metadata"]
+            result[key] = response.json()["metadata"]
 
     logger.info(
         "Completed bulk metadata fetch",
@@ -95,8 +121,8 @@ async def bulk_update_metadata_async(  # noqa: C901
     Example:
         ```python
         updates = [
-            {"dataset_uid": "da_123", "title": "New Title 1"},
-            {"dataset_uid": "da_456", "title": "New Title 2"},
+            {"dataset_id": "100123", "title": "New Title 1"},
+            {"dataset_id": "100456", "title": "New Title 2"},
         ]
         results = await bulk_update_metadata_async(updates)
         ```
@@ -122,9 +148,11 @@ async def bulk_update_metadata_async(  # noqa: C901
             response = client.get("/datasets/", params={"dataset_id": dataset_id})
             dataset_uid = response.json()["results"][0]["uid"]
 
+        uid: str = str(dataset_uid)  # guaranteed non-None by validation above
+
         try:
             # Get current metadata
-            response = client.get(f"/datasets/{dataset_uid}/metadata/")
+            response = client.get(f"/datasets/{uid}/metadata/")
             metadata: dict[str, Any] = response.json()
 
             # Update fields
@@ -140,17 +168,17 @@ async def bulk_update_metadata_async(  # noqa: C901
                 fields_updated.append(key)
 
             # Push updated metadata
-            client.put(f"/datasets/{dataset_uid}/metadata/", json=metadata)
+            client.put(f"/datasets/{uid}/metadata/", json=metadata)
 
             if publish:
-                client.post(f"/datasets/{dataset_uid}/publish/")
+                client.post(f"/datasets/{uid}/publish/")
 
-            results[dataset_uid] = {"status": "success", "fields_updated": fields_updated}
-            logger.debug("Updated dataset", uid=dataset_uid, fields=fields_updated)
+            results[uid] = {"status": "success", "fields_updated": fields_updated}
+            logger.debug("Updated dataset", uid=uid, fields=fields_updated)
 
         except Exception as e:
-            results[dataset_uid] = {"status": "error", "error": str(e)}
-            logger.warning("Failed to update dataset", uid=dataset_uid, error=str(e))
+            results[uid] = {"status": "error", "error": str(e)}
+            logger.warning("Failed to update dataset", uid=uid, error=str(e))
 
     logger.info(
         "Completed bulk metadata update",
@@ -167,7 +195,8 @@ async def bulk_update_metadata_async(  # noqa: C901
 
 
 def bulk_get_metadata(
-    dataset_uids: list[str],
+    dataset_ids: list[str] | None = None,
+    dataset_uids: list[str] | None = None,
     config: HuwiseConfig | None = None,
 ) -> dict[str, dict[str, Any]]:
     """Fetch metadata for multiple datasets synchronously.
@@ -175,31 +204,55 @@ def bulk_get_metadata(
     Uses sequential HTTP requests. For better performance with many datasets,
     use bulk_get_metadata_async instead.
 
+    Either ``dataset_ids`` or ``dataset_uids`` must be provided, but not both.
+
     Args:
+        dataset_ids: List of numeric dataset IDs to fetch metadata for.
         dataset_uids: List of dataset UIDs to fetch metadata for.
         config: Optional HuwiseConfig instance.
 
     Returns:
-        Dictionary mapping dataset UID to its metadata.
+        Dictionary mapping dataset ID to its metadata.
+
+    Raises:
+        ValueError: If both or neither identifier lists are provided.
 
     Example:
         ```python
-        metadata = bulk_get_metadata(["da_123", "da_456"])
+        metadata = bulk_get_metadata(dataset_ids=["100123", "100456"])
         ```
     """
+    if dataset_ids is not None and dataset_uids is not None:
+        raise ValueError("dataset_ids and dataset_uids are mutually exclusive")
+    if dataset_ids is None and dataset_uids is None:
+        raise ValueError("Either dataset_ids or dataset_uids must be specified")
+
     config = config or HuwiseConfig.from_env()
     client = HttpClient(config)
 
-    logger.info("Starting bulk metadata fetch", dataset_count=len(dataset_uids))
+    # Resolve dataset_ids to uids if needed, building a uid -> id map
+    id_to_uid: dict[str, str] = {}
+    uids: list[str] = []
+    if dataset_ids is not None:
+        for dataset_id in dataset_ids:
+            response = client.get("/datasets/", params={"dataset_id": dataset_id})
+            uid: str = response.json()["results"][0]["uid"]
+            uids.append(uid)
+            id_to_uid[uid] = dataset_id
+    elif dataset_uids is not None:
+        uids = dataset_uids
+
+    logger.info("Starting bulk metadata fetch", dataset_count=len(uids))
 
     result: dict[str, dict[str, Any]] = {}
-    for uid in dataset_uids:
+    for uid in uids:
+        key = id_to_uid.get(uid, uid)
         try:
             response = client.get(f"/datasets/{uid}")
-            result[uid] = response.json()["metadata"]
+            result[key] = response.json()["metadata"]
         except Exception as e:
-            logger.warning("Failed to fetch metadata", uid=uid, error=str(e))
-            result[uid] = {"error": str(e)}
+            logger.warning("Failed to fetch metadata", dataset_id=key, error=str(e))
+            result[key] = {"error": str(e)}
 
     logger.info(
         "Completed bulk metadata fetch",

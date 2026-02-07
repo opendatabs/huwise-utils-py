@@ -72,11 +72,8 @@ The library requires the following environment variables:
 ```python
 from huwise_utils_py import HuwiseDataset
 
-# From a UID
-dataset = HuwiseDataset(uid="da_abc123")
-
-# From a numeric ID (resolves to UID automatically)
-dataset = HuwiseDataset.from_id("12345")
+# Create from a dataset ID
+dataset = HuwiseDataset.from_id("100123")
 ```
 
 ### Reading Metadata
@@ -119,7 +116,7 @@ config = HuwiseConfig(
 )
 
 # Use with dataset
-dataset = HuwiseDataset(uid="da_abc123", config=config)
+dataset = HuwiseDataset.from_id("100123", config=config)
 ```
 
 ## Bulk Operations
@@ -130,13 +127,13 @@ For working with multiple datasets:
 from huwise_utils_py import bulk_get_metadata, bulk_get_metadata_async
 
 # Synchronous
-metadata = bulk_get_metadata(["da_123", "da_456", "da_789"])
+metadata = bulk_get_metadata(dataset_ids=["100123", "100456", "100789"])
 
 # Asynchronous (much faster for many datasets)
 import asyncio
 
 async def fetch_all():
-    return await bulk_get_metadata_async(["da_123", "da_456", "da_789"])
+    return await bulk_get_metadata_async(dataset_ids=["100123", "100456", "100789"])
 
 metadata = asyncio.run(fetch_all())
 ```

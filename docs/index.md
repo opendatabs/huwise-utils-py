@@ -32,8 +32,8 @@ A modern, type-safe Python library for the Huwise Automation API.
 ```python
 from huwise_utils_py import HuwiseDataset
 
-# Create a dataset instance
-dataset = HuwiseDataset(uid="da_abc123")
+# Create a dataset instance from its ID
+dataset = HuwiseDataset.from_id("100123")
 
 # Read metadata
 title = dataset.get_title()
@@ -51,10 +51,10 @@ dataset.set_title("New Title", publish=False) \
 from huwise_utils_py import get_dataset_title, set_dataset_title
 
 # Read metadata
-title = get_dataset_title(dataset_uid="da_abc123")
+title = get_dataset_title(dataset_id="100123")
 
 # Update metadata
-set_dataset_title("New Title", dataset_uid="da_abc123")
+set_dataset_title("New Title", dataset_id="100123")
 ```
 
 ## Configuration

@@ -51,8 +51,8 @@ HUWISE_API_TYPE=automation/v1.0
 ```python
 from huwise_utils_py import HuwiseDataset
 
-# Create a dataset instance
-dataset = HuwiseDataset(uid="da_abc123")
+# Create a dataset instance from its ID
+dataset = HuwiseDataset.from_id("100123")
 
 # Read metadata
 title = dataset.get_title()
@@ -70,10 +70,10 @@ dataset.set_title("New Title", publish=False) \
 from huwise_utils_py import get_dataset_title, set_dataset_title
 
 # Read
-title = get_dataset_title(dataset_uid="da_abc123")
+title = get_dataset_title(dataset_id="100123")
 
 # Write
-set_dataset_title("New Title", dataset_uid="da_abc123")
+set_dataset_title("New Title", dataset_id="100123")
 ```
 
 ### Bulk Operations
@@ -83,10 +83,10 @@ from huwise_utils_py import bulk_get_metadata, bulk_get_metadata_async
 import asyncio
 
 # Synchronous
-metadata = bulk_get_metadata(["da_123", "da_456", "da_789"])
+metadata = bulk_get_metadata(dataset_ids=["100123", "100456", "100789"])
 
 # Asynchronous (10-100x faster for many datasets)
-metadata = asyncio.run(bulk_get_metadata_async(["da_123", "da_456", "da_789"]))
+metadata = asyncio.run(bulk_get_metadata_async(dataset_ids=["100123", "100456", "100789"]))
 ```
 
 ## API Key Setup
