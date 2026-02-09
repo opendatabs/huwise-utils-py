@@ -106,11 +106,13 @@ def sample_metadata() -> dict:
         },
         "dcat": {
             "created": {"value": "2026-02-06T15:09:51Z"},
+            "issued": {"value": "2026-02-06"},
             "creator": {"value": "DCC Data Competence Center"},
             "contributor": {"value": "Open Data Basel-Stadt"},
             "contact_name": {"value": "Open Data Basel-Stadt"},
             "contact_email": {"value": "opendata@bs.ch"},
             "accrualperiodicity": {"value": "http://publications.europa.eu/resource/authority/frequency/IRREG"},
+            "relation": {"value": "https://example.com/related-dataset"},
         },
         "internal": {
             "category_id": {"value": "data"},

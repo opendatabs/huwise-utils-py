@@ -73,11 +73,12 @@ nav:
     - Overview: api/index.md
     - HuwiseConfig: api/config.md
     - HuwiseDataset: api/dataset.md
+    - Function-based API: api/legacy.md
     - HTTP Clients: api/http.md
     - Bulk Operations: api/bulk.md
     - Utilities: api/utils.md
-    - Function-based API: api/legacy.md
   - Examples: examples.md
+  - Metadata Reference: metadata-reference.md
   - Migration Guide: migration.md
 
 extra:

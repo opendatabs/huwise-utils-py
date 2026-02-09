@@ -100,6 +100,9 @@ class HuwiseDataset:
     def _get_metadata_value(self, template: str, field_name: str) -> Any | None:
         """Get a specific metadata field value.
 
+        Uses the per-template endpoint
+        ``GET /datasets/{uid}/metadata/{template}/``
+
         Args:
             template: Metadata template name (e.g., "default").
             field_name: Field name within the template.
@@ -107,11 +110,15 @@ class HuwiseDataset:
         Returns:
             The field value or None if not set.
         """
-        metadata = self.get_metadata()
-        return metadata.get(template, {}).get(field_name, {}).get("value")
+        response = self._client.get(f"/datasets/{self.uid}/metadata/{template}/")
+        template_data: dict[str, Any] = response.json()
+        return template_data.get(field_name, {}).get("value")
 
     def _set_metadata_value(self, template: str, field_name: str, value: Any, *, publish: bool = True) -> Self:
         """Set a specific metadata field value.
+
+        Uses the per-field endpoint
+        ``PUT /datasets/{uid}/metadata/{template}/{field_name}/``
 
         Args:
             template: Metadata template name (e.g., "default").
@@ -122,18 +129,11 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        response = self._client.get(f"/datasets/{self.uid}/metadata/")
-        metadata: dict[str, Any] = response.json()
-
-        if template not in metadata:
-            metadata[template] = {}
-        if field_name not in metadata[template]:
-            metadata[template][field_name] = {}
-
-        metadata[template][field_name]["value"] = value
-
         self._wait_for_idle()
-        self._client.put(f"/datasets/{self.uid}/metadata/", json=metadata)
+        self._client.put(
+            f"/datasets/{self.uid}/metadata/{template}/{field_name}/",
+            json={"value": value},
+        )
 
         logger.info(
             "Updated metadata field",
@@ -234,6 +234,107 @@ class HuwiseDataset:
         """
         return self._get_metadata_value("visualization", "custom_view")
 
+    def get_dcat_ap_ch_rights(self) -> str | None:
+        """Retrieve the DCAT-AP-CH rights statement.
+
+        Returns:
+            The rights statement string (e.g.
+            ``"NonCommercialAllowed-CommercialAllowed-ReferenceNotRequired"``)
+            or None if not set.
+        """
+        return self._get_metadata_value("dcat_ap_ch", "rights")
+
+    def get_dcat_ap_ch_license(self) -> str | None:
+        """Retrieve the DCAT-AP-CH license code.
+
+        Returns:
+            The license code (e.g. ``"terms_open"``) or None if not set.
+        """
+        return self._get_metadata_value("dcat_ap_ch", "license")
+
+    def get_created(self) -> str | None:
+        """Retrieve the dataset creation date (``dcat.created``).
+
+        Returns:
+            ISO datetime string or None if not set.
+        """
+        return self._get_metadata_value("dcat", "created")
+
+    def get_issued(self) -> str | None:
+        """Retrieve the dataset publication date (``dcat.issued``).
+
+        Returns:
+            ISO datetime string or None if not set.
+        """
+        return self._get_metadata_value("dcat", "issued")
+
+    def get_creator(self) -> str | None:
+        """Retrieve the dataset creator.
+
+        Returns:
+            The creator name or None if not set.
+        """
+        return self._get_metadata_value("dcat", "creator")
+
+    def get_contributor(self) -> str | None:
+        """Retrieve the dataset contributor.
+
+        Returns:
+            The contributor name or None if not set.
+        """
+        return self._get_metadata_value("dcat", "contributor")
+
+    def get_contact_name(self) -> str | None:
+        """Retrieve the dataset contact name.
+
+        Returns:
+            The contact name or None if not set.
+        """
+        return self._get_metadata_value("dcat", "contact_name")
+
+    def get_contact_email(self) -> str | None:
+        """Retrieve the dataset contact email.
+
+        Returns:
+            The contact email address or None if not set.
+        """
+        return self._get_metadata_value("dcat", "contact_email")
+
+    def get_accrualperiodicity(self) -> str | None:
+        """Retrieve the dataset accrual periodicity.
+
+        Returns:
+            EU frequency URI string (e.g.
+            ``"http://publications.europa.eu/resource/authority/frequency/DAILY"``)
+            or None if not set.
+        """
+        return self._get_metadata_value("dcat", "accrualperiodicity")
+
+    def get_relation(self) -> str | None:
+        """Retrieve the dataset relation URL.
+
+        Returns:
+            The relation URL string or None if not set.
+        """
+        return self._get_metadata_value("dcat", "relation")
+
+    def get_modified(self) -> str | None:
+        """Retrieve the dataset last-modified date (``default.modified``).
+
+        Returns:
+            ISO datetime string or None if not set.
+        """
+        return self._get_metadata_value("default", "modified")
+
+    def get_geographic_reference(self) -> list[str] | None:
+        """Retrieve the dataset geographic reference codes.
+
+        Returns:
+            List of geographic reference codes (e.g.
+            ``["ch_40_12"]``) or None if not set.
+        """
+        return self._get_metadata_value("default", "geographic_reference")
+
     # =========================================================================
     # Setters (return Self for method chaining)
     # =========================================================================
@@ -319,10 +420,10 @@ class HuwiseDataset:
     ) -> Self:
         """Set the dataset license.
 
-        Writes ``default.license_id`` (the writable field). The platform
-        then propagates this to ``internal.license_id`` automatically.
-        If *license_name* is provided, also sets ``default.license``
-        (the human-readable string) in the same API request.
+        Uses per-field ``PUT`` endpoints to update ``default.license_id``
+        (and optionally ``default.license``) without risking overwrites to
+        other metadata fields.  The platform propagates ``license_id`` to
+        ``internal.license_id`` automatically.
 
         Args:
             license_id: License identifier (e.g. ``"5sylls5"``).
@@ -334,31 +435,221 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        response = self._client.get(f"/datasets/{self.uid}/metadata/")
-        metadata: dict[str, Any] = response.json()
-
-        if "default" not in metadata:
-            metadata["default"] = {}
+        self._wait_for_idle()
 
         # Set the writable license_id (platform propagates to internal.license_id)
-        if "license_id" not in metadata["default"]:
-            metadata["default"]["license_id"] = {}
-        metadata["default"]["license_id"]["value"] = license_id
+        self._client.put(
+            f"/datasets/{self.uid}/metadata/default/license_id/",
+            json={"value": license_id},
+        )
 
         # Optionally set the human-readable license string
         if license_name is not None:
-            if "license" not in metadata["default"]:
-                metadata["default"]["license"] = {}
-            metadata["default"]["license"]["value"] = license_name
-
-        self._wait_for_idle()
-        self._client.put(f"/datasets/{self.uid}/metadata/", json=metadata)
+            self._client.put(
+                f"/datasets/{self.uid}/metadata/default/license/",
+                json={"value": license_name},
+            )
 
         logger.info(
             "Updated license",
             uid=self.uid,
             license_id=license_id,
             license_name=license_name,
+        )
+
+        if publish:
+            self.publish()
+
+        return self
+
+    def set_dcat_ap_ch_rights(self, rights: str, *, publish: bool = True) -> Self:
+        """Set the DCAT-AP-CH rights statement.
+
+        Args:
+            rights: Rights statement string (e.g.
+                ``"NonCommercialAllowed-CommercialAllowed-ReferenceRequired"``).
+                See the documentation for a full list of valid values.
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        return self._set_metadata_value("dcat_ap_ch", "rights", rights, publish=publish)
+
+    def set_dcat_ap_ch_license(self, license_code: str, *, publish: bool = True) -> Self:
+        """Set the DCAT-AP-CH license code.
+
+        Args:
+            license_code: License code (e.g. ``"terms_open"``, ``"terms_by"``).
+                See the documentation for a full list of valid values.
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        return self._set_metadata_value("dcat_ap_ch", "license", license_code, publish=publish)
+
+    def set_created(self, created: str, *, publish: bool = True) -> Self:
+        """Set the dataset creation date (``dcat.created``).
+
+        Args:
+            created: ISO datetime string (e.g. ``"2024-01-15T10:30:00Z"``).
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        return self._set_metadata_value("dcat", "created", created, publish=publish)
+
+    def set_issued(self, issued: str, *, publish: bool = True) -> Self:
+        """Set the dataset publication date (``dcat.issued``).
+
+        Args:
+            issued: ISO datetime string (e.g. ``"2024-01-15"``).
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        return self._set_metadata_value("dcat", "issued", issued, publish=publish)
+
+    def set_creator(self, creator: str, *, publish: bool = True) -> Self:
+        """Set the dataset creator.
+
+        Args:
+            creator: Creator name.
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        return self._set_metadata_value("dcat", "creator", creator, publish=publish)
+
+    def set_contributor(self, contributor: str, *, publish: bool = True) -> Self:
+        """Set the dataset contributor.
+
+        Args:
+            contributor: Contributor name.
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        return self._set_metadata_value("dcat", "contributor", contributor, publish=publish)
+
+    def set_contact_name(self, name: str, *, publish: bool = True) -> Self:
+        """Set the dataset contact name.
+
+        Args:
+            name: Contact name.
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        return self._set_metadata_value("dcat", "contact_name", name, publish=publish)
+
+    def set_contact_email(self, email: str, *, publish: bool = True) -> Self:
+        """Set the dataset contact email.
+
+        Args:
+            email: Contact email address.
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        return self._set_metadata_value("dcat", "contact_email", email, publish=publish)
+
+    def set_accrualperiodicity(self, frequency: str, *, publish: bool = True) -> Self:
+        """Set the dataset accrual periodicity.
+
+        Args:
+            frequency: EU frequency URI string (e.g.
+                ``"http://publications.europa.eu/resource/authority/frequency/DAILY"``).
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        return self._set_metadata_value("dcat", "accrualperiodicity", frequency, publish=publish)
+
+    def set_relation(self, relation: str, *, publish: bool = True) -> Self:
+        """Set the dataset relation URL.
+
+        Args:
+            relation: Relation URL string.
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        return self._set_metadata_value("dcat", "relation", relation, publish=publish)
+
+    def set_geographic_reference(self, references: list[str], *, publish: bool = True) -> Self:
+        """Set the dataset geographic reference codes.
+
+        Args:
+            references: List of geographic reference codes (e.g.
+                ``["ch_40_12"]``).  See the documentation for the code
+                format: ``{country}_{admin_level}_{territory_id}``.
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        return self._set_metadata_value("default", "geographic_reference", references, publish=publish)
+
+    def set_modified(
+        self,
+        modified: str,
+        *,
+        updates_on_metadata_change: bool | None = None,
+        updates_on_data_change: bool | None = None,
+        publish: bool = True,
+    ) -> Self:
+        """Set the dataset last-modified date (``default.modified``).
+
+        Uses per-field ``PUT`` endpoints so that each field is updated
+
+        Args:
+            modified: ISO datetime string (e.g. ``"2024-01-15T10:30:00Z"``).
+            updates_on_metadata_change: If given, sets whether the modified
+                date should auto-update when metadata changes.
+            updates_on_data_change: If given, sets whether the modified
+                date should auto-update when data changes.
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        self._wait_for_idle()
+
+        # Set the modified value
+        self._client.put(
+            f"/datasets/{self.uid}/metadata/default/modified/",
+            json={"value": modified},
+        )
+
+        # Optionally set the companion boolean flags
+        if updates_on_metadata_change is not None:
+            self._client.put(
+                f"/datasets/{self.uid}/metadata/default/modified_updates_on_metadata_change/",
+                json={"value": updates_on_metadata_change},
+            )
+
+        if updates_on_data_change is not None:
+            self._client.put(
+                f"/datasets/{self.uid}/metadata/default/modified_updates_on_data_change/",
+                json={"value": updates_on_data_change},
+            )
+
+        logger.info(
+            "Updated modified date",
+            uid=self.uid,
+            modified=modified,
+            updates_on_metadata_change=updates_on_metadata_change,
+            updates_on_data_change=updates_on_data_change,
         )
 
         if publish:
