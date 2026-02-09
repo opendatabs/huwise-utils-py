@@ -235,6 +235,222 @@ def get_dataset_custom_view(
     return dataset.get_custom_view()
 
 
+def get_dataset_dcat_ap_ch_rights(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> str | None:
+    """Get the DCAT-AP-CH rights statement of a dataset.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        The rights statement string or None if not set.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_dcat_ap_ch_rights()
+
+
+def get_dataset_dcat_ap_ch_license(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> str | None:
+    """Get the DCAT-AP-CH license code of a dataset.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        The license code string or None if not set.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_dcat_ap_ch_license()
+
+
+def get_dataset_created(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> str | None:
+    """Get the creation date of a dataset (``dcat.created``).
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        ISO datetime string or None if not set.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_created()
+
+
+def get_dataset_issued(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> str | None:
+    """Get the publication date of a dataset (``dcat.issued``).
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        ISO datetime string or None if not set.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_issued()
+
+
+def get_dataset_creator(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> str | None:
+    """Get the creator of a dataset.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        The creator name or None if not set.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_creator()
+
+
+def get_dataset_contributor(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> str | None:
+    """Get the contributor of a dataset.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        The contributor name or None if not set.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_contributor()
+
+
+def get_dataset_contact_name(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> str | None:
+    """Get the contact name of a dataset.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        The contact name or None if not set.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_contact_name()
+
+
+def get_dataset_contact_email(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> str | None:
+    """Get the contact email of a dataset.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        The contact email address or None if not set.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_contact_email()
+
+
+def get_dataset_accrualperiodicity(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> str | None:
+    """Get the accrual periodicity of a dataset.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        EU frequency URI string or None if not set.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_accrualperiodicity()
+
+
+def get_dataset_relation(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> str | None:
+    """Get the relation URL of a dataset.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        The relation URL string or None if not set.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_relation()
+
+
+def get_dataset_modified(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> str | None:
+    """Get the last-modified date of a dataset (``default.modified``).
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        ISO datetime string or None if not set.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_modified()
+
+
+def get_dataset_geographic_reference(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> list[str] | None:
+    """Get the geographic reference codes of a dataset.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        List of geographic reference codes or None if not set.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_geographic_reference()
+
+
 def get_dataset_metadata_temporal_period(
     dataset_id: str | None = None,
     dataset_uid: str | None = None,

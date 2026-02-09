@@ -51,9 +51,9 @@ Key points:
    cd huwise-utils-py
    ```
 
-4. **Ensure You Are on the `develop` Branch**
+4. **Ensure You Are on a new branch describing the new feature `feature/[new_feature]` Branch**
    ```bash
-   git checkout develop
+   git checkout feature/[new_feature]
    ```
    **IMPORTANT:** Never push directly to the `main` branch!
 
@@ -86,9 +86,6 @@ With uv, setting up the development environment is simple:
 
 3. **Run commands with uv**
    ```bash
-   # Run Python
-   uv run python
-
    # Run tests
    uv run pytest
 
@@ -289,19 +286,14 @@ This creates distribution files in the `dist/` directory.
 
 Publishing uses GitHub Actions with Trusted Publishing (no token required):
 
-1. Update the version in `pyproject.toml`:
-   ```bash
-   # View current version
-   uv version
-
-   # Set new version
-   uv version 2.1.0
-
-   # Or bump version
-   uv version --bump minor
+1. Update the `version` field in `pyproject.toml`:
+   ```toml
+   # pyproject.toml
+   [project]
+   version = "2.1.0"  # ← change this
    ```
 
-2. Push to `develop` branch
+2. Push to the newly created `feature/[new_feature]` branch
 
 3. Create a Pull Request into `main` with message "Update to version x.x.x"
 

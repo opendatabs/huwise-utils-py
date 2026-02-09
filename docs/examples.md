@@ -102,6 +102,142 @@ for dataset_id, result in results.items():
         print(f"✗ {dataset_id}: {result['error']}")
 ```
 
+## DCAT Metadata Operations
+
+### Reading DCAT-AP-CH Fields
+
+```python
+from huwise_utils_py import HuwiseDataset
+
+dataset = HuwiseDataset.from_id("100123")
+
+# DCAT-AP-CH specific fields
+rights = dataset.get_dcat_ap_ch_rights()
+print(f"Rights: {rights}")
+# e.g. "NonCommercialAllowed-CommercialAllowed-ReferenceNotRequired"
+
+dcat_license = dataset.get_dcat_ap_ch_license()
+print(f"DCAT-AP-CH License: {dcat_license}")
+# e.g. "terms_open"
+```
+
+### Writing DCAT-AP-CH Fields
+
+```python
+from huwise_utils_py import HuwiseDataset
+
+dataset = HuwiseDataset.from_id("100123")
+
+dataset.set_dcat_ap_ch_rights(
+    "NonCommercialAllowed-CommercialAllowed-ReferenceRequired",
+    publish=False,
+).set_dcat_ap_ch_license(
+    "terms_by",
+    publish=False,
+).publish()
+```
+
+### Reading and Writing DCAT Fields
+
+```python
+from huwise_utils_py import HuwiseDataset
+
+dataset = HuwiseDataset.from_id("100123")
+
+# Read DCAT fields
+print(f"Created: {dataset.get_created()}")
+print(f"Published: {dataset.get_issued()}")
+print(f"Creator: {dataset.get_creator()}")
+print(f"Contributor: {dataset.get_contributor()}")
+print(f"Contact: {dataset.get_contact_name()} <{dataset.get_contact_email()}>")
+print(f"Periodicity: {dataset.get_accrualperiodicity()}")
+print(f"Relation: {dataset.get_relation()}")
+
+# Update multiple DCAT fields efficiently
+dataset.set_creator("Data Team", publish=False) \
+       .set_contributor("Open Data Office", publish=False) \
+       .set_contact_name("Data Office", publish=False) \
+       .set_contact_email("data@example.com", publish=False) \
+       .set_accrualperiodicity(
+           "http://publications.europa.eu/resource/authority/frequency/DAILY",
+           publish=False,
+       ) \
+       .publish()
+```
+
+### Managing the Modified Date
+
+The `set_modified` method supports optional companion flags that control whether
+the modified date is automatically updated when metadata or data changes:
+
+```python
+from huwise_utils_py import HuwiseDataset
+
+dataset = HuwiseDataset.from_id("100123")
+
+# Set a fixed modified date and disable auto-updates
+dataset.set_modified(
+    "2024-06-01T12:00:00Z",
+    updates_on_metadata_change=False,
+    updates_on_data_change=False,
+)
+
+# Enable auto-update on data changes only
+dataset.set_modified(
+    "2024-06-01T12:00:00Z",
+    updates_on_metadata_change=False,
+    updates_on_data_change=True,
+)
+```
+
+### Working with Geographic References
+
+```python
+from huwise_utils_py import HuwiseDataset
+
+dataset = HuwiseDataset.from_id("100123")
+
+# Read current geographic references
+refs = dataset.get_geographic_reference()
+print(f"Geographic references: {refs}")
+# e.g. ["ch_40_12"]
+
+# Set geographic references (list of code strings)
+dataset.set_geographic_reference(["ch_40_12", "ch_80_2477"])
+```
+
+### Using the Automation API Per-Field Endpoints
+
+For lightweight reads and writes, the Huwise Automation API also supports
+per-field metadata endpoints. These are useful when you only need to read or
+update a single field without fetching the full metadata:
+
+```python
+import httpx
+
+DOMAIN = "data.bs.ch"
+API_KEY = "your-api-key"
+DATASET_UID = "da_tbcnel"
+
+headers = {"Authorization": f"apikey {API_KEY}"}
+
+# Read a single field
+resp = httpx.get(
+    f"https://{DOMAIN}/api/automation/v1.0/datasets/{DATASET_UID}/metadata/dcat/creator/",
+    headers=headers,
+)
+print(resp.json())  # {"value": "DCC Data Competence Center", ...}
+
+# Update a single field
+httpx.put(
+    f"https://{DOMAIN}/api/automation/v1.0/datasets/{DATASET_UID}/metadata/dcat/creator/",
+    headers=headers,
+    json={"value": "New Creator Name"},
+)
+```
+
+See the [Huwise Automation API docs](https://help.opendatasoft.com/apis/ods-automation-v1/#tag/Dataset-metadata/operation/retrieve-template-field-dataset-metadata) for more details.
+
 ## Custom Configuration
 
 ### Multiple Environments
@@ -139,9 +275,10 @@ test_config = HuwiseConfig(
 )
 
 # Mock HTTP client for testing
+# Getters call the per-template endpoint, so the mock returns the template dict
 with patch("huwise_utils_py.http.HttpClient") as mock:
     mock.return_value.get.return_value.json.return_value = {
-        "metadata": {"default": {"title": {"value": "Test"}}}
+        "title": {"value": "Test"}
     }
 
     dataset = HuwiseDataset.from_id("100123", config=test_config)
