@@ -5,8 +5,8 @@ This guide will help you set up and start using Huwise Utils Python.
 ## Prerequisites
 
 - Python 3.12 or higher
-- A Huwise API key
 - Your Huwise domain URL
+- A Huwise API key (only needed for write/restricted operations)
 
 ## Installation
 
@@ -26,11 +26,11 @@ This guide will help you set up and start using Huwise Utils Python.
 
 ### Environment Variables
 
-The library requires the following environment variables:
+The library uses the following environment variables:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `HUWISE_API_KEY` | Yes | Your API key for authentication |
+| `HUWISE_API_KEY` | No | API key for write/restricted operations |
 | `HUWISE_DOMAIN` | Yes | Your Huwise domain (e.g., `data.bs.ch`) |
 | `HUWISE_API_TYPE` | No | API version (defaults to `automation/v1.0`) |
 
@@ -39,8 +39,14 @@ The library requires the following environment variables:
 === "Environment Variables"
 
     ```bash
-    export HUWISE_API_KEY="your-api-key"
     export HUWISE_DOMAIN="data.bs.ch"
+    export HUWISE_API_TYPE="automation/v1.0"  # Optional
+    ```
+
+    For write/restricted operations, also set:
+
+    ```bash
+    export HUWISE_API_KEY="your-api-key"
     ```
 
 === ".env File"
@@ -48,10 +54,11 @@ The library requires the following environment variables:
     Create a `.env` file in your project root:
 
     ```bash
-    HUWISE_API_KEY=your-api-key
     HUWISE_DOMAIN=data.bs.ch
     HUWISE_API_TYPE=automation/v1.0
     ```
+
+    Add `HUWISE_API_KEY=your-api-key` only when you need authenticated operations.
 
 === "Programmatic"
 
@@ -59,7 +66,6 @@ The library requires the following environment variables:
     from huwise_utils_py import HuwiseConfig
 
     config = HuwiseConfig(
-        api_key="your-api-key",
         domain="data.bs.ch",
         api_type="automation/v1.0",
     )
@@ -140,7 +146,7 @@ metadata = asyncio.run(fetch_all())
 
 ## Logging
 
-Initialize structured logging for your application:
+Initialize stdlib logging (Airflow-friendly) for your application:
 
 ```python
 from huwise_utils_py import init_logger, get_logger

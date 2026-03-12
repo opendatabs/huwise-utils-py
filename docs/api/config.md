@@ -18,8 +18,12 @@ Type-safe configuration management for Huwise API access.
 ```python
 from huwise_utils_py import HuwiseConfig
 
-# Loads from HUWISE_API_KEY, HUWISE_DOMAIN, HUWISE_API_TYPE
+# Loads HUWISE_DOMAIN (required), HUWISE_API_TYPE (optional),
+# and HUWISE_API_KEY (optional by default)
 config = HuwiseConfig.from_env()
+
+# Enforce that HUWISE_API_KEY must exist:
+auth_config = HuwiseConfig.from_env(require_api_key=True)
 ```
 
 ### Programmatic
@@ -41,7 +45,8 @@ print(config.base_url)
 
 # Get authorization headers
 print(config.headers)
-# Output: {"Authorization": "apikey your-api-key"}
+# Output with key: {"Authorization": "apikey your-api-key"}
+# Output without key: {}
 ```
 
 ### Dependency Injection

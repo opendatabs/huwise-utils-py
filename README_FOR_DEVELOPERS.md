@@ -111,7 +111,7 @@ huwise-utils-py/
 │   ├── dataset.py            # HuwiseDataset class
 │   ├── http.py               # HttpClient, AsyncHttpClient
 │   ├── bulk.py               # Bulk operations (sync + async)
-│   ├── logger.py             # Logging re-exports
+│   ├── logger.py             # Airflow-friendly logging utilities
 │   ├── utils/                # Utility functions
 │   │   ├── decorators.py     # retry decorator
 │   │   └── validators.py     # validate_dataset_identifier
