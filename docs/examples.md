@@ -305,7 +305,7 @@ logger.debug("Processing dataset", dataset_id="100123")
 logger.warning("Rate limit approaching", remaining=10)
 ```
 
-### Structured Logging Example
+### Logging with Context Fields
 
 ```python
 from huwise_utils_py import init_logger, get_logger, HuwiseDataset
@@ -374,7 +374,7 @@ except ValueError as e:
 ```python
 # settings.py
 HUWISE_CONFIG = {
-    "api_key": os.environ["HUWISE_API_KEY"],
+    "api_key": os.getenv("HUWISE_API_KEY"),  # Optional for public read operations
     "domain": os.environ["HUWISE_DOMAIN"],
 }
 

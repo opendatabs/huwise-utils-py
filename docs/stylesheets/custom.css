@@ -457,9 +457,17 @@
   background-color: rgba(30, 69, 87, 0.5);
 }
 
-/* Mobile sidebar header */
-.md-sidebar--primary .md-sidebar__scrollwrap {
+/* Sidebar background (keep light mode explicit) */
+[data-md-color-scheme="default"] .md-sidebar--primary .md-sidebar__scrollwrap {
   background-color: #ffffff;
+}
+
+/* Ensure dark mode sidebar matches dark surfaces */
+[data-md-color-scheme="slate"] .md-sidebar--primary .md-sidebar__scrollwrap,
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-sidebar__scrollwrap,
+[data-md-color-scheme="slate"] .md-nav--primary,
+[data-md-color-scheme="slate"] .md-nav--secondary {
+  background-color: var(--md-default-bg-color);
 }
 
 /* Mobile navigation back button */
@@ -472,9 +480,14 @@
 }
 
 /* Ensure toggle/hamburger uses correct colors */
-.md-toggle--indeterminate ~ .md-nav,
-.md-toggle:checked ~ .md-nav {
+[data-md-color-scheme="default"] .md-toggle--indeterminate ~ .md-nav,
+[data-md-color-scheme="default"] .md-toggle:checked ~ .md-nav {
   background-color: #ffffff;
+}
+
+[data-md-color-scheme="slate"] .md-toggle--indeterminate ~ .md-nav,
+[data-md-color-scheme="slate"] .md-toggle:checked ~ .md-nav {
+  background-color: var(--md-default-bg-color);
 }
 
 /* Mobile header for navigation */

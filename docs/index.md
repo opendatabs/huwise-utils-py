@@ -7,7 +7,7 @@ A modern, type-safe Python library for the Huwise Automation API.
 - **Type-safe configuration** with Pydantic-based `HuwiseConfig`
 - **Object-oriented API** with `HuwiseDataset` class and method chaining
 - **Async support** for high-performance bulk operations
-- **Structured logging** via `dcc-backend-common`
+- **Airflow-friendly logging** via Python stdlib logging
 - **Dependency injection** support for testable code
 - **Backwards compatible** function-based API
 
@@ -59,18 +59,22 @@ set_dataset_title("New Title", dataset_id="100123")
 
 ## Configuration
 
-Set up your environment variables:
+Set up your environment variables (domain is required):
 
 ```bash
-export HUWISE_API_KEY="your-api-key"
 export HUWISE_DOMAIN="data.bs.ch"
 export HUWISE_API_TYPE="automation/v1.0"  # Optional
 ```
 
-Or use a `.env` file:
+If you need write/restricted operations, also set:
 
 ```bash
-HUWISE_API_KEY=your-api-key
+export HUWISE_API_KEY="your-api-key"
+```
+
+Or use a `.env` file (add `HUWISE_API_KEY` only when needed):
+
+```bash
 HUWISE_DOMAIN=data.bs.ch
 HUWISE_API_TYPE=automation/v1.0
 ```

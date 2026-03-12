@@ -72,6 +72,29 @@ class TestHttpClient:
             assert "headers" in call_kwargs
             assert "Authorization" in call_kwargs["headers"]
 
+    def test_http_client_allows_requests_without_api_key(self) -> None:
+        """Test that requests can be sent without Authorization header."""
+        config = HuwiseConfig(
+            api_key=None,
+            domain="data.example.com",
+            api_type="automation/v1.0",
+        )
+        client = HttpClient(config)
+
+        with patch("huwise_utils_py.http.httpx.Client") as mock_httpx:
+            mock_response = MagicMock()
+            mock_response.raise_for_status = MagicMock()
+            mock_instance = MagicMock()
+            mock_instance.__enter__ = MagicMock(return_value=mock_instance)
+            mock_instance.__exit__ = MagicMock(return_value=False)
+            mock_instance.get.return_value = mock_response
+            mock_httpx.return_value = mock_instance
+
+            client.get("/test")
+
+            call_kwargs = mock_instance.get.call_args[1]
+            assert call_kwargs["headers"] == {}
+
 
 class TestRetryDecorator:
     """Tests for retry decorator."""

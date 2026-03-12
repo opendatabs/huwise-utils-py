@@ -11,7 +11,7 @@ A Python library for the Huwise Automation API.
 - **Type-safe configuration** with Pydantic-based `HuwiseConfig`
 - **Object-oriented API** with `HuwiseDataset` class and method chaining
 - **Async support** for high-performance bulk operations
-- **Structured logging** via `dcc-backend-common`
+- **Airflow-friendly logging** via Python stdlib logging
 - **Dependency injection** support for testable code
 - **Backwards compatible** function-based API available
 
@@ -32,7 +32,8 @@ pip install huwise-utils-py
 ## Requirements
 
 - **Python Version:** 3.12 or higher
-- **API Key:** A valid API key from Huwise
+- **Domain:** Huwise domain (for example `data.bs.ch`)
+- **API Key:** Optional for public read endpoints, required for write/restricted operations
 
 ## Quick Start
 
@@ -41,9 +42,14 @@ pip install huwise-utils-py
 Create a `.env` file:
 
 ```bash
-HUWISE_API_KEY=your-api-key
 HUWISE_DOMAIN=data.bs.ch
 HUWISE_API_TYPE=automation/v1.0
+```
+
+If you need write access (publish/update metadata), also add:
+
+```bash
+HUWISE_API_KEY=your-api-key
 ```
 
 ### Using HuwiseDataset (Recommended)

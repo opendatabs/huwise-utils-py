@@ -3,6 +3,8 @@
 import os
 from unittest.mock import patch
 
+import pytest
+
 from huwise_utils_py.config import HuwiseConfig
 
 
@@ -41,6 +43,16 @@ class TestHuwiseConfig:
 
         assert config.headers == {"Authorization": "apikey my-secret-key"}
 
+    def test_huwise_config_headers_empty_without_api_key(self) -> None:
+        """Test that headers is empty when no API key is configured."""
+        config = HuwiseConfig(
+            api_key=None,
+            domain="data.example.com",
+            api_type="automation/v1.0",
+        )
+
+        assert config.headers == {}
+
     def test_huwise_config_str_masks_api_key(self) -> None:
         """Test that string representation masks the API key."""
         config = HuwiseConfig(
@@ -68,6 +80,37 @@ class TestHuwiseConfig:
         assert config.api_key == "env-api-key"
         assert config.domain == "env.domain.com"
         assert config.api_type == "automation/v2.0"
+
+    @patch.dict(
+        os.environ,
+        {
+            "HUWISE_DOMAIN": "env.domain.com",
+            "HUWISE_API_TYPE": "automation/v2.0",
+        },
+        clear=True,
+    )
+    def test_huwise_config_from_env_without_api_key_is_allowed(self) -> None:
+        """Test that from_env works without HUWISE_API_KEY by default."""
+        config = HuwiseConfig.from_env()
+
+        assert config.api_key is None
+        assert config.domain == "env.domain.com"
+        assert config.api_type == "automation/v2.0"
+
+    @patch.dict(
+        os.environ,
+        {
+            "HUWISE_DOMAIN": "env.domain.com",
+        },
+        clear=True,
+    )
+    def test_huwise_config_from_env_can_require_api_key(self) -> None:
+        """Test that from_env can enforce presence of HUWISE_API_KEY."""
+        with (
+            patch("huwise_utils_py.config.get_env_or_throw", side_effect=RuntimeError("missing api key")),
+            pytest.raises(RuntimeError, match="missing api key"),
+        ):
+            HuwiseConfig.from_env(require_api_key=True)
 
     @patch.dict(
         os.environ,

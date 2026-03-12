@@ -57,8 +57,8 @@ Field: `internal.theme_id`
 The repository includes a discovery script that pairs hash IDs with human-readable
 names by cross-referencing the Automation API and the Explore API.
 
-If your `.env` file contains `HUWISE_API_KEY` and `HUWISE_DOMAIN`, you can run it
-without arguments:
+If your `.env` file contains `HUWISE_API_KEY` and `HUWISE_DOMAIN`, you can run this
+authenticated discovery script without arguments:
 
 ```bash
 uv run python scripts/discover_themes.py
