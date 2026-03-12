@@ -54,12 +54,12 @@ class HuwiseConfig(BaseModel):
     api_type: str = Field(default="automation/v1.0", description="API version/type")
 
     @classmethod
-    def from_env(cls, *, require_api_key: bool = False) -> "HuwiseConfig":
+    def from_env(cls, *, require_api_key: bool = True) -> "HuwiseConfig":
         """Load configuration from environment variables.
 
-        The API key is optional by default so public endpoints can be used
-        without credentials. The domain defaults to ``data.bs.ch`` when not set.
-        Set ``require_api_key=True`` to enforce auth.
+        For Automation API usage, API key authentication is required by default.
+        The domain defaults to ``data.bs.ch`` when not set.
+        Set ``require_api_key=False`` only for explicit unauthenticated scenarios.
 
         Returns:
             HuwiseConfig instance populated from environment.

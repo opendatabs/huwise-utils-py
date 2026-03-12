@@ -374,7 +374,7 @@ except ValueError as e:
 ```python
 # settings.py
 HUWISE_CONFIG = {
-    "api_key": os.getenv("HUWISE_API_KEY"),  # Optional for public read operations
+    "api_key": os.environ["HUWISE_API_KEY"],
     "domain": os.environ["HUWISE_DOMAIN"],
 }
 

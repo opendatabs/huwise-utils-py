@@ -33,7 +33,7 @@ pip install huwise-utils-py
 
 - **Python Version:** 3.12 or higher
 - **Domain:** Optional (defaults to `data.bs.ch`; set `HUWISE_DOMAIN` for other portals)
-- **API Key:** Optional for public read endpoints, required for write/restricted operations
+- **API Key:** Required for Automation API operations
 
 ## Quick Start
 
@@ -51,7 +51,7 @@ If your portal is not `data.bs.ch`, also set:
 HUWISE_DOMAIN=your-portal.example.org
 ```
 
-If you need write access (publish/update metadata), also add:
+Set your API key:
 
 ```bash
 HUWISE_API_KEY=your-api-key

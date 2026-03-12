@@ -90,8 +90,8 @@ class TestHuwiseConfig:
         clear=True,
     )
     def test_huwise_config_from_env_without_api_key_is_allowed(self) -> None:
-        """Test that from_env works without HUWISE_API_KEY by default."""
-        config = HuwiseConfig.from_env()
+        """Test that from_env can work without HUWISE_API_KEY when explicitly allowed."""
+        config = HuwiseConfig.from_env(require_api_key=False)
 
         assert config.api_key is None
         assert config.domain == "env.domain.com"
@@ -100,7 +100,7 @@ class TestHuwiseConfig:
     @patch.dict(os.environ, {}, clear=True)
     def test_huwise_config_from_env_uses_default_domain(self) -> None:
         """Test that from_env uses data.bs.ch when HUWISE_DOMAIN is not set."""
-        config = HuwiseConfig.from_env()
+        config = HuwiseConfig.from_env(require_api_key=False)
 
         assert config.api_key is None
         assert config.domain == DEFAULT_HUWISE_DOMAIN
@@ -113,13 +113,13 @@ class TestHuwiseConfig:
         },
         clear=True,
     )
-    def test_huwise_config_from_env_can_require_api_key(self) -> None:
-        """Test that from_env can enforce presence of HUWISE_API_KEY."""
+    def test_huwise_config_from_env_requires_api_key_by_default(self) -> None:
+        """Test that from_env enforces presence of HUWISE_API_KEY by default."""
         with (
             patch("huwise_utils_py.config.get_env_or_throw", side_effect=RuntimeError("missing api key")),
             pytest.raises(RuntimeError, match="missing api key"),
         ):
-            HuwiseConfig.from_env(require_api_key=True)
+            HuwiseConfig.from_env()
 
     @patch.dict(
         os.environ,
