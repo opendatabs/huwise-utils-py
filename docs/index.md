@@ -40,9 +40,7 @@ title = dataset.get_title()
 description = dataset.get_description()
 
 # Update metadata with method chaining
-dataset.set_title("New Title", publish=False) \
-       .set_description("New description") \
-       .publish()
+dataset.set_title("New Title", publish=False).set_description("New description").publish()
 ```
 
 ### Using the Function-based API
@@ -59,11 +57,16 @@ set_dataset_title("New Title", dataset_id="100123")
 
 ## Configuration
 
-Set up your environment variables (domain is required):
+Set up your environment variables:
 
 ```bash
-export HUWISE_DOMAIN="data.bs.ch"
 export HUWISE_API_TYPE="automation/v1.0"  # Optional
+```
+
+The default domain is `data.bs.ch`. For other portals, set:
+
+```bash
+export HUWISE_DOMAIN="your-portal.example.org"
 ```
 
 If you need write/restricted operations, also set:

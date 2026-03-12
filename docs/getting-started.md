@@ -5,7 +5,7 @@ This guide will help you set up and start using Huwise Utils Python.
 ## Prerequisites
 
 - Python 3.12 or higher
-- Your Huwise domain URL
+- Your Huwise domain URL (optional if using `data.bs.ch`)
 - A Huwise API key (only needed for write/restricted operations)
 
 ## Installation
@@ -31,7 +31,7 @@ The library uses the following environment variables:
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `HUWISE_API_KEY` | No | API key for write/restricted operations |
-| `HUWISE_DOMAIN` | Yes | Your Huwise domain (e.g., `data.bs.ch`) |
+| `HUWISE_DOMAIN` | No | Your Huwise domain (defaults to `data.bs.ch`) |
 | `HUWISE_API_TYPE` | No | API version (defaults to `automation/v1.0`) |
 
 ### Setting Up
@@ -39,8 +39,13 @@ The library uses the following environment variables:
 === "Environment Variables"
 
     ```bash
-    export HUWISE_DOMAIN="data.bs.ch"
     export HUWISE_API_TYPE="automation/v1.0"  # Optional
+    ```
+
+    For non-default portals, also set:
+
+    ```bash
+    export HUWISE_DOMAIN="your-portal.example.org"
     ```
 
     For write/restricted operations, also set:
@@ -54,10 +59,10 @@ The library uses the following environment variables:
     Create a `.env` file in your project root:
 
     ```bash
-    HUWISE_DOMAIN=data.bs.ch
     HUWISE_API_TYPE=automation/v1.0
     ```
 
+    Add `HUWISE_DOMAIN=your-portal.example.org` only when not using `data.bs.ch`.
     Add `HUWISE_API_KEY=your-api-key` only when you need authenticated operations.
 
 === "Programmatic"
@@ -104,10 +109,9 @@ dataset.set_title("New Title")
 dataset.set_title("New Title", publish=False)
 
 # Chain multiple updates
-dataset.set_title("Title", publish=False) \
-       .set_description("Description", publish=False) \
-       .set_keywords(["tag1", "tag2"], publish=False) \
-       .publish()
+dataset.set_title("Title", publish=False).set_description("Description", publish=False).set_keywords(
+    ["tag1", "tag2"], publish=False
+).publish()
 ```
 
 ### Using Custom Configuration
@@ -138,8 +142,10 @@ metadata = bulk_get_metadata(dataset_ids=["100123", "100456", "100789"])
 # Asynchronous (much faster for many datasets)
 import asyncio
 
+
 async def fetch_all():
     return await bulk_get_metadata_async(dataset_ids=["100123", "100456", "100789"])
+
 
 metadata = asyncio.run(fetch_all())
 ```
