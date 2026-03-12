@@ -32,7 +32,7 @@ pip install huwise-utils-py
 ## Requirements
 
 - **Python Version:** 3.12 or higher
-- **Domain:** Huwise domain (for example `data.bs.ch`)
+- **Domain:** Optional (defaults to `data.bs.ch`; set `HUWISE_DOMAIN` for other portals)
 - **API Key:** Optional for public read endpoints, required for write/restricted operations
 
 ## Quick Start
@@ -42,8 +42,13 @@ pip install huwise-utils-py
 Create a `.env` file:
 
 ```bash
-HUWISE_DOMAIN=data.bs.ch
 HUWISE_API_TYPE=automation/v1.0
+```
+
+If your portal is not `data.bs.ch`, also set:
+
+```bash
+HUWISE_DOMAIN=your-portal.example.org
 ```
 
 If you need write access (publish/update metadata), also add:
@@ -65,9 +70,7 @@ title = dataset.get_title()
 description = dataset.get_description()
 
 # Update with method chaining
-dataset.set_title("New Title", publish=False) \
-       .set_description("New description") \
-       .publish()
+dataset.set_title("New Title", publish=False).set_description("New description").publish()
 ```
 
 ### Using Functions

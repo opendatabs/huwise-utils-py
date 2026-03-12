@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from huwise_utils_py.config import HuwiseConfig
+from huwise_utils_py.config import DEFAULT_HUWISE_DOMAIN, HuwiseConfig
 
 
 class TestHuwiseConfig:
@@ -96,6 +96,15 @@ class TestHuwiseConfig:
         assert config.api_key is None
         assert config.domain == "env.domain.com"
         assert config.api_type == "automation/v2.0"
+
+    @patch.dict(os.environ, {}, clear=True)
+    def test_huwise_config_from_env_uses_default_domain(self) -> None:
+        """Test that from_env uses data.bs.ch when HUWISE_DOMAIN is not set."""
+        config = HuwiseConfig.from_env()
+
+        assert config.api_key is None
+        assert config.domain == DEFAULT_HUWISE_DOMAIN
+        assert config.api_type == "automation/v1.0"
 
     @patch.dict(
         os.environ,

@@ -8,6 +8,8 @@ import os
 
 from pydantic import BaseModel, Field
 
+DEFAULT_HUWISE_DOMAIN = "data.bs.ch"
+
 
 class AppConfigError(RuntimeError):
     """Raised when a required configuration value is missing."""
@@ -48,7 +50,7 @@ class HuwiseConfig(BaseModel):
     """
 
     api_key: str | None = Field(default=None, description="API key for Huwise authentication")
-    domain: str = Field(description="Huwise domain (e.g., data.bs.ch)")
+    domain: str = Field(default=DEFAULT_HUWISE_DOMAIN, description="Huwise domain (e.g., data.bs.ch)")
     api_type: str = Field(default="automation/v1.0", description="API version/type")
 
     @classmethod
@@ -56,7 +58,8 @@ class HuwiseConfig(BaseModel):
         """Load configuration from environment variables.
 
         The API key is optional by default so public endpoints can be used
-        without credentials. Set ``require_api_key=True`` to enforce auth.
+        without credentials. The domain defaults to ``data.bs.ch`` when not set.
+        Set ``require_api_key=True`` to enforce auth.
 
         Returns:
             HuwiseConfig instance populated from environment.
@@ -67,7 +70,7 @@ class HuwiseConfig(BaseModel):
         api_key = get_env_or_throw("HUWISE_API_KEY") if require_api_key else os.getenv("HUWISE_API_KEY")
         return cls(
             api_key=api_key,
-            domain=get_env_or_throw("HUWISE_DOMAIN"),
+            domain=os.getenv("HUWISE_DOMAIN", DEFAULT_HUWISE_DOMAIN),
             api_type=os.getenv("HUWISE_API_TYPE", "automation/v1.0"),
         )
 

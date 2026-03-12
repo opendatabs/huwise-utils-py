@@ -18,8 +18,8 @@ Type-safe configuration management for Huwise API access.
 ```python
 from huwise_utils_py import HuwiseConfig
 
-# Loads HUWISE_DOMAIN (required), HUWISE_API_TYPE (optional),
-# and HUWISE_API_KEY (optional by default)
+# Loads HUWISE_DOMAIN (optional, defaults to data.bs.ch),
+# HUWISE_API_TYPE (optional), and HUWISE_API_KEY (optional by default)
 config = HuwiseConfig.from_env()
 
 # Enforce that HUWISE_API_KEY must exist:
