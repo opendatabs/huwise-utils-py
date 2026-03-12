@@ -60,6 +60,7 @@ set_dataset_title("New Title", dataset_id="100123")
 Set up your environment variables:
 
 ```bash
+export HUWISE_API_KEY="your-api-key"
 export HUWISE_API_TYPE="automation/v1.0"  # Optional
 ```
 
@@ -69,15 +70,10 @@ The default domain is `data.bs.ch`. For other portals, set:
 export HUWISE_DOMAIN="your-portal.example.org"
 ```
 
-If you need write/restricted operations, also set:
+Or use a `.env` file:
 
 ```bash
-export HUWISE_API_KEY="your-api-key"
-```
-
-Or use a `.env` file (add `HUWISE_API_KEY` only when needed):
-
-```bash
+HUWISE_API_KEY=your-api-key
 HUWISE_DOMAIN=data.bs.ch
 HUWISE_API_TYPE=automation/v1.0
 ```

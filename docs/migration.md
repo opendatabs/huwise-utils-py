@@ -64,11 +64,10 @@ export ODS_API_KEY="key"
 export ODS_DOMAIN="domain"
 
 # New
+export HUWISE_API_KEY="key"
 export HUWISE_DOMAIN="domain"
 export HUWISE_API_TYPE="automation/v1.0"  # Optional
 ```
-
-Add `HUWISE_API_KEY` only when you need write/restricted operations.
 
 ### Step 3: Update Package
 
