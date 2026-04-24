@@ -26,6 +26,13 @@ from huwise_utils_py import HuwiseConfig
 
 config = HuwiseConfig(api_key="key", domain="custom.domain.com")
 dataset = HuwiseDataset.from_id("100123", config=config)
+
+# Create a new dataset
+created = HuwiseDataset.create(
+    metadata={"default": {"title": {"value": "My New Dataset"}}},
+    dataset_id="my-new-dataset",
+    is_restricted=False,
+)
 ```
 
 ### Reading Metadata
@@ -124,6 +131,43 @@ dataset.unpublish()
 dataset.refresh()
 ```
 
+### Dataset Schema And Field Configuration
+
+```python
+dataset = HuwiseDataset.from_id("100123")
+
+# Update dataset-level configuration (PUT /datasets/{uid}/)
+dataset.update_configuration(
+    dataset_id="renamed-dataset-id",
+    is_restricted=True,
+)
+
+# Field configuration stack (Dataset fields endpoints)
+field_processors = dataset.list_field_configurations(limit=100)
+one_processor = dataset.retrieve_field_configuration("pr_qf2hyt")
+
+created_processor = dataset.append_field_configuration(
+    {
+        "type": "rename",
+        "label": "Rename old field",
+        "from_name": "old_name",
+        "to_name": "new_name",
+    }
+)
+
+updated_processor = dataset.update_field_configuration(
+    created_processor["uid"],
+    {
+        "type": "rename",
+        "label": "Rename old field (updated)",
+        "from_name": "old_name",
+        "to_name": "new_name",
+    },
+)
+
+dataset.delete_field_configuration(updated_processor["uid"])
+```
+
 ## Method Chaining
 
 All setter methods return `self`, enabling fluent interfaces:
@@ -157,6 +201,7 @@ This is more efficient than calling each setter with `publish=True` because it o
       members:
         - config
         - from_id
+        - create
         - get_metadata
         - get_title
         - get_description
@@ -200,3 +245,9 @@ This is more efficient than calling each setter with `publish=True` because it o
         - publish
         - unpublish
         - refresh
+        - update_configuration
+        - list_field_configurations
+        - retrieve_field_configuration
+        - append_field_configuration
+        - update_field_configuration
+        - delete_field_configuration

@@ -7,9 +7,37 @@ They wrap the HuwiseDataset class internally.
 from typing import Any
 
 from huwise_utils_py.config import HuwiseConfig
-from huwise_utils_py.dataset import HuwiseDataset
+from huwise_utils_py.dataset import DatasetSecurity, HuwiseDataset
 from huwise_utils_py.http import HttpClient
 from huwise_utils_py.utils.validators import validate_dataset_identifier
+
+
+def create_dataset(
+    metadata: dict[str, Any],
+    dataset_id: str | None = None,
+    is_restricted: bool | None = None,
+    default_security: DatasetSecurity | None = None,
+    config: HuwiseConfig | None = None,
+) -> HuwiseDataset:
+    """Create a new dataset.
+
+    Args:
+        metadata: Dataset metadata payload.
+        dataset_id: Optional human-readable dataset identifier.
+        is_restricted: Optional restriction flag.
+        default_security: Optional default security ruleset.
+        config: Optional configuration override.
+
+    Returns:
+        The created dataset instance.
+    """
+    return HuwiseDataset.create(
+        metadata=metadata,
+        dataset_id=dataset_id,
+        is_restricted=is_restricted,
+        default_security=default_security,
+        config=config,
+    )
 
 
 def set_dataset_public(
@@ -555,3 +583,63 @@ def set_template_metadata(
 
     if publish:
         client.post(f"/datasets/{uid}/publish/")
+
+
+def update_dataset_configuration(
+    dataset_id: str | None = None,
+    is_restricted: bool | None = None,
+    default_security: DatasetSecurity | None = None,
+    *,
+    target_dataset_id: str | None = None,
+    target_dataset_uid: str | None = None,
+) -> None:
+    """Update dataset-level configuration fields.
+
+    Args:
+        dataset_id: New dataset ID to set.
+        is_restricted: Restriction flag to set.
+        default_security: Default security ruleset to set.
+        target_dataset_id: Numeric ID of dataset to update.
+        target_dataset_uid: UID of dataset to update.
+    """
+    uid = validate_dataset_identifier(target_dataset_id, target_dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    dataset.update_configuration(
+        dataset_id=dataset_id,
+        is_restricted=is_restricted,
+        default_security=default_security,
+    )
+
+
+def append_dataset_field_configuration(
+    field_configuration: dict[str, Any],
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> dict[str, Any]:
+    """Append a new field configuration processor."""
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.append_field_configuration(field_configuration)
+
+
+def update_dataset_field_configuration(
+    field_uid: str,
+    field_configuration: dict[str, Any],
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> dict[str, Any]:
+    """Update an existing field configuration processor."""
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.update_field_configuration(field_uid, field_configuration)
+
+
+def delete_dataset_field_configuration(
+    field_uid: str,
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> None:
+    """Delete a field configuration processor."""
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    dataset.delete_field_configuration(field_uid)

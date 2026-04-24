@@ -15,6 +15,7 @@ The function-based API provides standalone functions for common operations. Thes
 
 ```python
 from huwise_utils_py import (
+    create_dataset,
     get_dataset_title,
     get_dataset_description,
     get_dataset_keywords,
@@ -65,12 +66,20 @@ issued = get_dataset_issued(dataset_id="100123")
 # Default template fields
 modified = get_dataset_modified(dataset_id="100123")
 geo_refs = get_dataset_geographic_reference(dataset_id="100123")
+
+# Create a new dataset
+created_dataset = create_dataset(
+    metadata={"default": {"title": {"value": "New Dataset"}}},
+    dataset_id="new-dataset",
+)
 ```
 
 ### Setters
 
 ```python
 from huwise_utils_py import (
+    append_dataset_field_configuration,
+    delete_dataset_field_configuration,
     set_dataset_title,
     set_dataset_description,
     set_dataset_keywords,
@@ -94,6 +103,8 @@ from huwise_utils_py import (
     # New default template setters
     set_dataset_modified,
     set_dataset_geographic_reference,
+    update_dataset_configuration,
+    update_dataset_field_configuration,
 )
 
 # Set metadata (publishes by default)
@@ -120,6 +131,37 @@ set_dataset_modified(
     updates_on_metadata_change=True,
     updates_on_data_change=False,
 )
+
+# Update dataset-level configuration
+update_dataset_configuration(
+    dataset_id="renamed-id",
+    is_restricted=True,
+    target_dataset_id="100123",
+)
+
+# Manage dataset field configuration processors
+processor = append_dataset_field_configuration(
+    {
+        "type": "rename",
+        "label": "Rename field",
+        "from_name": "old_name",
+        "to_name": "new_name",
+    },
+    dataset_id="100123",
+)
+
+update_dataset_field_configuration(
+    processor["uid"],
+    {
+        "type": "rename",
+        "label": "Rename field (updated)",
+        "from_name": "old_name",
+        "to_name": "new_name",
+    },
+    dataset_id="100123",
+)
+
+delete_dataset_field_configuration(processor["uid"], dataset_id="100123")
 ```
 
 ## Comparison with HuwiseDataset
@@ -144,10 +186,10 @@ dataset.set_title("New Title", publish=False) \
 
 ## Available Functions
 
-### Getters
+### Getter Function Catalog
 
 | Function | Description |
-|----------|-------------|
+| --- | --- |
 | `get_all_dataset_ids()` | Get all dataset IDs |
 | `get_number_of_datasets()` | Get total dataset count |
 | `get_dataset_metadata()` | Get full metadata |
@@ -173,12 +215,15 @@ dataset.set_title("New Title", publish=False) \
 | `get_dataset_geographic_reference()` | Get geographic reference codes |
 | `get_dataset_metadata_temporal_period()` | Get temporal coverage |
 | `get_template_metadata()` | Get template-specific metadata |
+| `list_dataset_field_configurations()` | List dataset field configuration processors |
+| `get_dataset_field_configuration()` | Get one dataset field configuration processor |
 
-### Setters
+### Setter Function Catalog
 
 | Function | Description |
-|----------|-------------|
+| --- | --- |
 | `set_dataset_public()` | Publish/unpublish dataset |
+| `create_dataset()` | Create a new dataset and return a `HuwiseDataset` instance |
 | `set_dataset_title()` | Set dataset title |
 | `set_dataset_description()` | Set dataset description |
 | `set_dataset_keywords()` | Set dataset keywords |
@@ -202,3 +247,7 @@ dataset.set_title("New Title", publish=False) \
 | `set_dataset_metadata_temporal_coverage_start_date()` | Set start date |
 | `set_dataset_metadata_temporal_coverage_end_date()` | Set end date |
 | `set_template_metadata()` | Set template-specific field |
+| `update_dataset_configuration()` | Update dataset-level configuration (`dataset_id`, `is_restricted`, `default_security`) |
+| `append_dataset_field_configuration()` | Append a new dataset field configuration processor |
+| `update_dataset_field_configuration()` | Update an existing dataset field configuration processor |
+| `delete_dataset_field_configuration()` | Delete a dataset field configuration processor |

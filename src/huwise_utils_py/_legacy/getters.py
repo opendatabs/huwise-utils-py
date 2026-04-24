@@ -494,3 +494,45 @@ def get_template_metadata(
     dataset = HuwiseDataset(uid=uid)
     metadata = dataset.get_metadata()
     return metadata.get(template_name, {})
+
+
+def list_dataset_field_configurations(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+) -> dict[str, Any]:
+    """List field configuration processors for a dataset.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+        limit: Optional pagination limit.
+        offset: Optional pagination offset.
+
+    Returns:
+        Paginated response with field configuration processors.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.list_field_configurations(limit=limit, offset=offset)
+
+
+def get_dataset_field_configuration(
+    field_uid: str,
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> dict[str, Any]:
+    """Retrieve one dataset field configuration by UID.
+
+    Args:
+        field_uid: Field configuration UID.
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        Field configuration dictionary.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.retrieve_field_configuration(field_uid)

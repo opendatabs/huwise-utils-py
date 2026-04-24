@@ -24,6 +24,9 @@ Examples:
 
 # Function-based API
 from huwise_utils_py._legacy import (
+    append_dataset_field_configuration,
+    create_dataset,
+    delete_dataset_field_configuration,
     get_all_dataset_ids,
     get_dataset_accrualperiodicity,
     get_dataset_contact_email,
@@ -35,6 +38,7 @@ from huwise_utils_py._legacy import (
     get_dataset_dcat_ap_ch_license,
     get_dataset_dcat_ap_ch_rights,
     get_dataset_description,
+    get_dataset_field_configuration,
     get_dataset_geographic_reference,
     get_dataset_issued,
     get_dataset_keywords,
@@ -50,6 +54,7 @@ from huwise_utils_py._legacy import (
     get_number_of_datasets,
     get_template_metadata,
     get_uid_by_id,
+    list_dataset_field_configurations,
     set_dataset_accrualperiodicity,
     set_dataset_contact_email,
     set_dataset_contact_name,
@@ -74,6 +79,8 @@ from huwise_utils_py._legacy import (
     set_dataset_theme,
     set_dataset_title,
     set_template_metadata,
+    update_dataset_configuration,
+    update_dataset_field_configuration,
 )
 from huwise_utils_py.bulk import (
     bulk_get_dataset_ids,
@@ -97,19 +104,18 @@ __all__ = [
     "LICENSE_MAP",
     "AsyncHttpClient",
     "HttpClient",
-    # Core components (new API)
     "HuwiseConfig",
     "HuwiseDataset",
-    # Version
     "__version__",
+    "append_dataset_field_configuration",
     "bulk_get_dataset_ids",
     "bulk_get_dataset_ids_async",
-    # Bulk operations (new API)
     "bulk_get_metadata",
     "bulk_get_metadata_async",
     "bulk_update_metadata",
     "bulk_update_metadata_async",
-    # Function-based API — Getters
+    "create_dataset",
+    "delete_dataset_field_configuration",
     "get_all_dataset_ids",
     "get_dataset_accrualperiodicity",
     "get_dataset_contact_email",
@@ -121,6 +127,7 @@ __all__ = [
     "get_dataset_dcat_ap_ch_license",
     "get_dataset_dcat_ap_ch_rights",
     "get_dataset_description",
+    "get_dataset_field_configuration",
     "get_dataset_geographic_reference",
     "get_dataset_issued",
     "get_dataset_keywords",
@@ -138,9 +145,8 @@ __all__ = [
     "get_template_metadata",
     "get_uid_by_id",
     "init_logger",
-    # Utilities
+    "list_dataset_field_configurations",
     "retry",
-    # Function-based API — Setters
     "set_dataset_accrualperiodicity",
     "set_dataset_contact_email",
     "set_dataset_contact_name",
@@ -165,5 +171,7 @@ __all__ = [
     "set_dataset_theme",
     "set_dataset_title",
     "set_template_metadata",
+    "update_dataset_configuration",
+    "update_dataset_field_configuration",
     "validate_dataset_identifier",
 ]
