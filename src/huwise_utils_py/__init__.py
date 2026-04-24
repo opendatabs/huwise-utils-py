@@ -98,7 +98,7 @@ from huwise_utils_py.logger import get_logger, init_logger
 # Utilities
 from huwise_utils_py.utils import retry, validate_dataset_identifier
 
-__version__ = "1.3.0"
+__version__ = "1.4.0"
 
 __all__ = [
     "LICENSE_MAP",
