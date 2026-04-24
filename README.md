@@ -71,6 +71,26 @@ description = dataset.get_description()
 
 # Update with method chaining
 dataset.set_title("New Title", publish=False).set_description("New description").publish()
+
+# Create a new dataset
+created = HuwiseDataset.create(
+    metadata={"default": {"title": {"value": "My New Dataset"}}},
+    dataset_id="my-new-dataset",
+    is_restricted=False,
+)
+
+# Update dataset-level schema/configuration
+created.update_configuration(dataset_id="my-renamed-dataset", is_restricted=True)
+
+# Append a dataset field configuration processor
+created.append_field_configuration(
+    {
+        "type": "rename",
+        "label": "Rename field",
+        "from_name": "old_name",
+        "to_name": "new_name",
+    }
+)
 ```
 
 ### Using Functions
@@ -83,6 +103,13 @@ title = get_dataset_title(dataset_id="100123")
 
 # Write
 set_dataset_title("New Title", dataset_id="100123")
+
+# Create
+from huwise_utils_py import create_dataset
+new_dataset = create_dataset(
+    metadata={"default": {"title": {"value": "My New Dataset"}}},
+    dataset_id="my-new-dataset",
+)
 ```
 
 ### Bulk Operations

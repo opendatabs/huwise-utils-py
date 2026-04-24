@@ -6,13 +6,47 @@ Huwise datasets, supporting method chaining and dependency injection.
 
 import time
 from dataclasses import dataclass, field
-from typing import Any, Self
+from typing import Any, NotRequired, Self, TypedDict
 
 from huwise_utils_py.config import HuwiseConfig
 from huwise_utils_py.http import HttpClient
 from huwise_utils_py.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+class DatasetSecurityQuota(TypedDict):
+    """Typed representation of API calls quota configuration."""
+
+    unit: str
+    limit: int
+
+
+class DatasetSecurity(TypedDict):
+    """Typed representation of dataset security configuration."""
+
+    is_data_visible: NotRequired[bool]
+    visible_fields: NotRequired[list[str]]
+    filter_query: NotRequired[str]
+    api_calls_quota: NotRequired[DatasetSecurityQuota]
+
+
+class DatasetCreatePayload(TypedDict):
+    """Typed payload for POST /datasets/."""
+
+    metadata: dict[str, Any]
+    dataset_id: NotRequired[str]
+    is_restricted: NotRequired[bool]
+    default_security: NotRequired[DatasetSecurity]
+
+
+class DatasetUpdatePayload(TypedDict):
+    """Typed payload for PUT /datasets/{uid}/."""
+
+    dataset_id: NotRequired[str]
+    is_restricted: NotRequired[bool]
+    default_security: NotRequired[DatasetSecurity]
+
 
 # Map of Huwise license_id values to license URLs
 LICENSE_MAP: dict[str, str] = {
@@ -85,6 +119,61 @@ class HuwiseDataset:
         uid: str = response.json()["results"][0]["uid"]
 
         logger.info("Resolved dataset ID to UID", dataset_id=dataset_id, uid=uid)
+        return cls(uid=uid, config=config)
+
+    @classmethod
+    def create(
+        cls,
+        metadata: dict[str, Any],
+        *,
+        dataset_id: str | None = None,
+        is_restricted: bool | None = None,
+        default_security: DatasetSecurity | None = None,
+        config: HuwiseConfig | None = None,
+    ) -> Self:
+        """Create a new dataset and return it as a ``HuwiseDataset`` instance.
+
+        Args:
+            metadata: Dataset metadata payload (required by API).
+            dataset_id: Optional human-readable identifier.
+            is_restricted: Optional restriction flag.
+            default_security: Optional default security ruleset.
+            config: Optional HuwiseConfig instance.
+
+        Returns:
+            A ``HuwiseDataset`` instance for the created dataset.
+
+        Raises:
+            TypeError: If metadata is not a dictionary.
+            ValueError: If response does not contain a UID.
+        """
+        if not isinstance(metadata, dict):
+            raise TypeError("metadata must be a dictionary")
+
+        config = config or HuwiseConfig.from_env()
+        client = HttpClient(config)
+        payload: DatasetCreatePayload = {"metadata": metadata}
+
+        if dataset_id is not None:
+            payload["dataset_id"] = dataset_id
+        if is_restricted is not None:
+            payload["is_restricted"] = is_restricted
+        if default_security is not None:
+            payload["default_security"] = default_security
+
+        response = client.post("/datasets/", json=payload)
+        response_data: dict[str, Any] = response.json()
+        uid = response_data.get("uid")
+
+        if not isinstance(uid, str) or not uid:
+            raise ValueError("Create dataset response does not contain a valid uid")
+
+        logger.info(
+            "Created dataset",
+            uid=uid,
+            dataset_id=dataset_id,
+            is_restricted=is_restricted,
+        )
         return cls(uid=uid, config=config)
 
     def _wait_for_idle(self) -> None:
@@ -689,4 +778,121 @@ class HuwiseDataset:
         """
         self._client.put(f"/datasets/{self.uid}/")
         logger.info("Refreshed dataset", uid=self.uid)
+        return self
+
+    def update_configuration(
+        self,
+        *,
+        dataset_id: str | None = None,
+        is_restricted: bool | None = None,
+        default_security: DatasetSecurity | None = None,
+    ) -> Self:
+        """Update dataset-level configuration properties.
+
+        Args:
+            dataset_id: Optional new dataset ID.
+            is_restricted: Optional restriction flag.
+            default_security: Optional default security ruleset.
+
+        Returns:
+            Self for method chaining.
+
+        Raises:
+            ValueError: If no configuration field is provided.
+        """
+        payload: DatasetUpdatePayload = {}
+        if dataset_id is not None:
+            payload["dataset_id"] = dataset_id
+        if is_restricted is not None:
+            payload["is_restricted"] = is_restricted
+        if default_security is not None:
+            payload["default_security"] = default_security
+
+        if not payload:
+            raise ValueError("At least one configuration field must be provided")
+
+        self._client.put(f"/datasets/{self.uid}/", json=payload)
+        logger.info(
+            "Updated dataset configuration",
+            uid=self.uid,
+            dataset_id=dataset_id,
+            is_restricted=is_restricted,
+            has_default_security=default_security is not None,
+        )
+        return self
+
+    def list_field_configurations(self, *, limit: int | None = None, offset: int | None = None) -> dict[str, Any]:
+        """List field configurations for the dataset.
+
+        Args:
+            limit: Optional pagination limit.
+            offset: Optional pagination offset.
+
+        Returns:
+            Paginated response dictionary with field configurations.
+        """
+        params: dict[str, int] = {}
+        if limit is not None:
+            params["limit"] = limit
+        if offset is not None:
+            params["offset"] = offset
+
+        response = self._client.get(f"/datasets/{self.uid}/fields/", params=params or None)
+        return response.json()
+
+    def retrieve_field_configuration(self, field_uid: str) -> dict[str, Any]:
+        """Retrieve one field configuration by UID.
+
+        Args:
+            field_uid: Field configuration UID.
+
+        Returns:
+            Field configuration dictionary.
+        """
+        response = self._client.get(f"/datasets/{self.uid}/fields/{field_uid}/")
+        return response.json()
+
+    def append_field_configuration(self, field_configuration: dict[str, Any]) -> dict[str, Any]:
+        """Append a new field configuration processor.
+
+        Args:
+            field_configuration: Payload for field configuration creation.
+
+        Returns:
+            Created field configuration response.
+        """
+        response = self._client.post(f"/datasets/{self.uid}/fields/", json=field_configuration)
+        logger.info("Appended dataset field configuration", uid=self.uid, field_type=field_configuration.get("type"))
+        return response.json()
+
+    def update_field_configuration(self, field_uid: str, field_configuration: dict[str, Any]) -> dict[str, Any]:
+        """Update an existing field configuration processor.
+
+        Args:
+            field_uid: Field configuration UID.
+            field_configuration: Updated field configuration payload.
+
+        Returns:
+            Updated field configuration response.
+        """
+        response = self._client.put(f"/datasets/{self.uid}/fields/{field_uid}/", json=field_configuration)
+        logger.info(
+            "Updated dataset field configuration",
+            uid=self.uid,
+            field_uid=field_uid,
+            field_type=field_configuration.get("type"),
+        )
+        return response.json()
+
+    def delete_field_configuration(self, field_uid: str) -> Self:
+        """Delete a field configuration processor.
+
+        Args:
+            field_uid: Field configuration UID.
+
+        Returns:
+            Self for method chaining.
+        """
+        self._client.delete(f"/datasets/{self.uid}/fields/{field_uid}/")
+        logger.info("Deleted dataset field configuration", uid=self.uid, field_uid=field_uid)
         return self

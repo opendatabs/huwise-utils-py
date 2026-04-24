@@ -4,7 +4,9 @@ These tests use mocked responses based on real API response structures
 captured from dataset ID 100522 (UID: da_tbcnel).
 """
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from huwise_utils_py.config import HuwiseConfig
 from huwise_utils_py.dataset import HuwiseDataset
@@ -604,3 +606,123 @@ class TestHuwiseDatasetStatusHandling:
         mock_dataset._wait_for_idle()
 
         assert mock_dataset._client.get.call_count == 2
+
+
+class TestHuwiseDatasetCreate:
+    """Tests for dataset creation classmethod."""
+
+    def test_create_posts_payload_and_returns_dataset(self, mock_config: HuwiseConfig) -> None:
+        """Test that create posts expected payload and returns dataset instance."""
+        with (
+            patch("huwise_utils_py.dataset.HttpClient") as mock_http_client,
+            patch.object(HuwiseDataset, "__post_init__", return_value=None),
+        ):
+            mock_client = MagicMock()
+            mock_http_client.return_value = mock_client
+            response = MagicMock()
+            response.json.return_value = {"uid": "da_new123", "dataset_id": "new-dataset"}
+            mock_client.post.return_value = response
+
+            dataset = HuwiseDataset.create(
+                metadata={"default": {"title": {"value": "New Dataset"}}},
+                dataset_id="new-dataset",
+                is_restricted=True,
+                config=mock_config,
+            )
+
+            mock_client.post.assert_called_once_with(
+                "/datasets/",
+                json={
+                    "metadata": {"default": {"title": {"value": "New Dataset"}}},
+                    "dataset_id": "new-dataset",
+                    "is_restricted": True,
+                },
+            )
+            assert dataset.uid == "da_new123"
+
+    def test_create_raises_when_uid_missing(self, mock_config: HuwiseConfig) -> None:
+        """Test that create raises ValueError when response uid is missing."""
+        with patch("huwise_utils_py.dataset.HttpClient") as mock_http_client:
+            mock_client = MagicMock()
+            mock_http_client.return_value = mock_client
+            response = MagicMock()
+            response.json.return_value = {"dataset_id": "new-dataset"}
+            mock_client.post.return_value = response
+
+            with pytest.raises(ValueError, match="valid uid"):
+                HuwiseDataset.create(
+                    metadata={"default": {"title": {"value": "New Dataset"}}},
+                    config=mock_config,
+                )
+
+    def test_create_raises_for_non_dict_metadata(self, mock_config: HuwiseConfig) -> None:
+        """Test that create validates metadata type."""
+        with pytest.raises(TypeError, match="metadata must be a dictionary"):
+            HuwiseDataset.create(metadata="invalid", config=mock_config)  # type: ignore[arg-type]
+
+
+class TestHuwiseDatasetSchemaConfiguration:
+    """Tests for dataset-level and field-level schema methods."""
+
+    def test_update_configuration_puts_payload(self, mock_dataset: HuwiseDataset) -> None:
+        """Test that update_configuration calls dataset PUT endpoint with payload."""
+        mock_dataset._client.put.return_value = MagicMock()
+
+        result = mock_dataset.update_configuration(dataset_id="updated-id", is_restricted=False)
+
+        assert result is mock_dataset
+        mock_dataset._client.put.assert_called_once_with(
+            "/datasets/da_tbcnel/",
+            json={"dataset_id": "updated-id", "is_restricted": False},
+        )
+
+    def test_update_configuration_raises_without_fields(self, mock_dataset: HuwiseDataset) -> None:
+        """Test that update_configuration requires at least one field."""
+        with pytest.raises(ValueError, match="At least one configuration field"):
+            mock_dataset.update_configuration()
+
+    def test_list_field_configurations_uses_fields_endpoint(self, mock_dataset: HuwiseDataset) -> None:
+        """Test listing field configurations uses dataset fields endpoint."""
+        response = MagicMock()
+        response.json.return_value = {"results": []}
+        mock_dataset._client.get.return_value = response
+
+        result = mock_dataset.list_field_configurations(limit=10, offset=5)
+
+        assert result == {"results": []}
+        mock_dataset._client.get.assert_called_once_with(
+            "/datasets/da_tbcnel/fields/", params={"limit": 10, "offset": 5}
+        )
+
+    def test_append_field_configuration_posts_payload(self, mock_dataset: HuwiseDataset) -> None:
+        """Test append_field_configuration POSTs to fields endpoint."""
+        payload = {"type": "rename", "label": "Rename field", "from_name": "a", "to_name": "b"}
+        response = MagicMock()
+        response.json.return_value = {"uid": "pr_field1", **payload}
+        mock_dataset._client.post.return_value = response
+
+        result = mock_dataset.append_field_configuration(payload)
+
+        assert result["uid"] == "pr_field1"
+        mock_dataset._client.post.assert_called_once_with("/datasets/da_tbcnel/fields/", json=payload)
+
+    def test_update_field_configuration_puts_payload(self, mock_dataset: HuwiseDataset) -> None:
+        """Test update_field_configuration PUTs to field endpoint."""
+        payload = {"type": "description", "label": "Describe field", "field": "a", "description": "text"}
+        response = MagicMock()
+        response.json.return_value = {"uid": "pr_field1", **payload}
+        mock_dataset._client.put.return_value = response
+
+        result = mock_dataset.update_field_configuration("pr_field1", payload)
+
+        assert result["uid"] == "pr_field1"
+        mock_dataset._client.put.assert_called_once_with("/datasets/da_tbcnel/fields/pr_field1/", json=payload)
+
+    def test_delete_field_configuration_calls_delete(self, mock_dataset: HuwiseDataset) -> None:
+        """Test delete_field_configuration uses delete endpoint and returns self."""
+        mock_dataset._client.delete.return_value = MagicMock()
+
+        result = mock_dataset.delete_field_configuration("pr_field1")
+
+        assert result is mock_dataset
+        mock_dataset._client.delete.assert_called_once_with("/datasets/da_tbcnel/fields/pr_field1/")
