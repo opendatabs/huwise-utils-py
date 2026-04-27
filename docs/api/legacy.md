@@ -74,6 +74,12 @@ created_dataset = create_dataset(
     dataset_id="new-dataset",
 )
 
+# Easier create: metadata is optional
+created_dataset_2 = create_dataset(
+    dataset_id="new-dataset-2",
+    title="New Dataset 2",
+)
+
 # Delete a dataset by ID or UID
 delete_dataset(dataset_id="new-dataset")
 ```
@@ -187,9 +193,7 @@ from huwise_utils_py import HuwiseDataset
 
 dataset = HuwiseDataset.from_id("100123")
 title = dataset.get_title()
-dataset.set_title("New Title", publish=False) \
-       .set_description("Desc") \
-       .publish()
+dataset.set_title("New Title", publish=False).set_description("Desc").publish()
 ```
 
 ## Available Functions

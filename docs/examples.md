@@ -31,10 +31,9 @@ dataset = HuwiseDataset.from_id("100123")
 dataset.set_title("New Title")
 
 # Multiple updates (more efficient)
-dataset.set_title("New Title", publish=False) \
-       .set_description("Updated description", publish=False) \
-       .set_keywords(["python", "data", "open-data"], publish=False) \
-       .publish()
+dataset.set_title("New Title", publish=False).set_description("Updated description", publish=False).set_keywords(
+    ["python", "data", "open-data"], publish=False
+).publish()
 ```
 
 ### Working with Dataset IDs
@@ -69,6 +68,7 @@ for dataset_id, meta in metadata.items():
 import asyncio
 from huwise_utils_py import bulk_get_metadata_async, bulk_get_dataset_ids_async
 
+
 async def fetch_all_metadata():
     # Get all dataset IDs
     ids = await bulk_get_dataset_ids_async(max_datasets=100)
@@ -76,6 +76,7 @@ async def fetch_all_metadata():
     # Fetch all metadata concurrently
     metadata = await bulk_get_metadata_async(dataset_ids=ids[:50])
     return metadata
+
 
 # Run
 all_metadata = asyncio.run(fetch_all_metadata())
@@ -154,15 +155,12 @@ print(f"Periodicity: {dataset.get_accrualperiodicity()}")
 print(f"Relation: {dataset.get_relation()}")
 
 # Update multiple DCAT fields efficiently
-dataset.set_creator("Data Team", publish=False) \
-       .set_contributor("Open Data Office", publish=False) \
-       .set_contact_name("Data Office", publish=False) \
-       .set_contact_email("data@example.com", publish=False) \
-       .set_accrualperiodicity(
-           "http://publications.europa.eu/resource/authority/frequency/DAILY",
-           publish=False,
-       ) \
-       .publish()
+dataset.set_creator("Data Team", publish=False).set_contributor("Open Data Office", publish=False).set_contact_name(
+    "Data Office", publish=False
+).set_contact_email("data@example.com", publish=False).set_accrualperiodicity(
+    "http://publications.europa.eu/resource/authority/frequency/DAILY",
+    publish=False,
+).publish()
 ```
 
 ### Managing the Modified Date
@@ -277,9 +275,7 @@ test_config = HuwiseConfig(
 # Mock HTTP client for testing
 # Getters call the per-template endpoint, so the mock returns the template dict
 with patch("huwise_utils_py.http.HttpClient") as mock:
-    mock.return_value.get.return_value.json.return_value = {
-        "title": {"value": "Test"}
-    }
+    mock.return_value.get.return_value.json.return_value = {"title": {"value": "Test"}}
 
     dataset = HuwiseDataset.from_id("100123", config=test_config)
     title = dataset.get_title()
@@ -313,6 +309,7 @@ from huwise_utils_py import init_logger, get_logger, HuwiseDataset
 init_logger()
 logger = get_logger(__name__)
 
+
 def sync_dataset(dataset_id: str) -> None:
     logger.info("Starting sync", dataset_id=dataset_id)
 
@@ -329,6 +326,7 @@ def sync_dataset(dataset_id: str) -> None:
     except Exception as e:
         logger.error("Sync failed", dataset_id=dataset_id, error=str(e))
         raise
+
 
 sync_dataset("100123")
 ```
@@ -378,15 +376,16 @@ except ValueError as e:
 ```python
 from huwise_utils_py import HuwiseDataset, strip_empty_metadata_values
 
-metadata = strip_empty_metadata_values(
-    {
-        "default": {
-            "title": {"value": "Title"},
-            "publisher": {"value": ""},
-        },
-    }
-)
+metadata = strip_empty_metadata_values({
+    "default": {
+        "title": {"value": "Title"},
+        "publisher": {"value": ""},
+    },
+})
 HuwiseDataset.create(metadata=metadata, dataset_id="my-dataset-id")
+
+# Minimal create without metadata (library builds default.title)
+HuwiseDataset.create(dataset_id="my-dataset-id-2", title="My Dataset ID 2")
 ```
 
 ## Integration Patterns
@@ -404,8 +403,10 @@ HUWISE_CONFIG = {
 from django.conf import settings
 from huwise_utils_py import HuwiseConfig, HuwiseDataset
 
+
 def get_huwise_config():
     return HuwiseConfig(**settings.HUWISE_CONFIG)
+
 
 def update_dataset(dataset_id: str, title: str) -> None:
     config = get_huwise_config()
@@ -421,8 +422,10 @@ from huwise_utils_py import HuwiseConfig, HuwiseDataset
 
 app = FastAPI()
 
+
 def get_config() -> HuwiseConfig:
     return HuwiseConfig.from_env()
+
 
 @app.get("/datasets/{dataset_id}")
 async def get_dataset(dataset_id: str, config: HuwiseConfig = Depends(get_config)):

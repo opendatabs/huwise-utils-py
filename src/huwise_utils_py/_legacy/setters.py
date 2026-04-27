@@ -13,7 +13,8 @@ from huwise_utils_py.utils.validators import validate_dataset_identifier
 
 
 def create_dataset(
-    metadata: dict[str, Any],
+    metadata: dict[str, Any] | None = None,
+    title: str | None = None,
     dataset_id: str | None = None,
     is_restricted: bool | None = None,
     default_security: DatasetSecurity | None = None,
@@ -22,7 +23,8 @@ def create_dataset(
     """Create a new dataset.
 
     Args:
-        metadata: Dataset metadata payload.
+        metadata: Optional dataset metadata payload.
+        title: Optional title used when ``metadata`` is omitted.
         dataset_id: Optional human-readable dataset identifier.
         is_restricted: Optional restriction flag.
         default_security: Optional default security ruleset.
@@ -33,6 +35,7 @@ def create_dataset(
     """
     return HuwiseDataset.create(
         metadata=metadata,
+        title=title,
         dataset_id=dataset_id,
         is_restricted=is_restricted,
         default_security=default_security,

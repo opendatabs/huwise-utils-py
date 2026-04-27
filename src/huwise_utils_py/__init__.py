@@ -100,6 +100,7 @@ from huwise_utils_py.logger import get_logger, init_logger
 # Utilities
 from huwise_utils_py.utils import (
     assert_non_empty_dataset_id,
+    build_create_dataset_metadata,
     retry,
     strip_empty_metadata_values,
     validate_dataset_identifier,
@@ -117,6 +118,7 @@ __all__ = [
     "__version__",
     "append_dataset_field_configuration",
     "assert_non_empty_dataset_id",
+    "build_create_dataset_metadata",
     "bulk_get_dataset_ids",
     "bulk_get_dataset_ids_async",
     "bulk_get_metadata",

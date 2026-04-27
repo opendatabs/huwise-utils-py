@@ -51,3 +51,35 @@ def strip_empty_metadata_values(metadata: dict[str, Any]) -> dict[str, Any]:
         if new_fields:
             result[template_name] = new_fields
     return result
+
+
+def build_create_dataset_metadata(
+    metadata: dict[str, Any] | None,
+    *,
+    title: str | None = None,
+    dataset_id: str | None = None,
+) -> dict[str, Any]:
+    """Build a valid create payload metadata object.
+
+    The Automation API requires a metadata object on create. This helper keeps
+    create calls ergonomic by auto-building a minimal metadata payload when
+    callers do not provide one.
+
+    Args:
+        metadata: Optional full metadata payload.
+        title: Optional title to use when metadata is omitted.
+        dataset_id: Optional dataset identifier, used as fallback title.
+
+    Returns:
+        Metadata payload safe to send to ``POST /datasets/``.
+
+    Raises:
+        TypeError: If ``metadata`` is provided but is not a dictionary.
+    """
+    if metadata is not None:
+        if not isinstance(metadata, dict):
+            raise TypeError("metadata must be a dictionary")
+        return metadata
+
+    fallback_title = (title or "").strip() or (dataset_id or "").strip() or "Untitled dataset"
+    return {"default": {"title": {"value": fallback_title}}}

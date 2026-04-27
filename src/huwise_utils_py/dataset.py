@@ -11,7 +11,7 @@ from typing import Any, NotRequired, Self, TypedDict
 from huwise_utils_py.config import HuwiseConfig
 from huwise_utils_py.http import HttpClient
 from huwise_utils_py.logger import get_logger
-from huwise_utils_py.utils.metadata import assert_non_empty_dataset_id
+from huwise_utils_py.utils.metadata import assert_non_empty_dataset_id, build_create_dataset_metadata
 
 logger = get_logger(__name__)
 
@@ -125,8 +125,9 @@ class HuwiseDataset:
     @classmethod
     def create(
         cls,
-        metadata: dict[str, Any],
+        metadata: dict[str, Any] | None = None,
         *,
+        title: str | None = None,
         dataset_id: str | None = None,
         is_restricted: bool | None = None,
         default_security: DatasetSecurity | None = None,
@@ -135,7 +136,9 @@ class HuwiseDataset:
         """Create a new dataset and return it as a ``HuwiseDataset`` instance.
 
         Args:
-            metadata: Dataset metadata payload (required by API).
+            metadata: Optional dataset metadata payload. If omitted, a minimal
+                metadata object is auto-built with ``default.title``.
+            title: Optional title used when ``metadata`` is omitted.
             dataset_id: Optional human-readable identifier.
             is_restricted: Optional restriction flag.
             default_security: Optional default security ruleset.
@@ -145,15 +148,14 @@ class HuwiseDataset:
             A ``HuwiseDataset`` instance for the created dataset.
 
         Raises:
-            TypeError: If metadata is not a dictionary.
+            TypeError: If metadata is provided but is not a dictionary.
             ValueError: If response does not contain a UID.
         """
-        if not isinstance(metadata, dict):
-            raise TypeError("metadata must be a dictionary")
-
         config = config or HuwiseConfig.from_env()
         client = HttpClient(config)
-        payload: DatasetCreatePayload = {"metadata": metadata}
+        payload: DatasetCreatePayload = {
+            "metadata": build_create_dataset_metadata(metadata, title=title, dataset_id=dataset_id)
+        }
 
         if dataset_id is not None:
             assert_non_empty_dataset_id(dataset_id)

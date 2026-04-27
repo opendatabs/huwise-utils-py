@@ -29,8 +29,8 @@ class TestDatasetLifecycleIntegration:
         title_v2 = f"Integration lifecycle title v2 {int(time.time())}"
 
         dataset = HuwiseDataset.create(
-            metadata={"default": {"title": {"value": title_v1}}},
             dataset_id=dataset_id,
+            title=title_v1,
             is_restricted=True,
         )
         field_uid: str | None = None
@@ -56,10 +56,11 @@ class TestDatasetLifecycleIntegration:
 
             # Change schema and read it back
             field_payload = {
-                "name": "lifecycle_test_field",
-                "label": "Lifecycle Test Field",
-                "description": "Created by integration lifecycle test",
-                "type": "text",
+                "type": "rename",
+                "label": "Lifecycle rename processor",
+                "from_name": "lifecycle_source_field",
+                "to_name": "lifecycle_target_field",
+                "field_label": "Lifecycle Target Field",
             }
             created_field = dataset.append_field_configuration(field_payload)
             field_uid = created_field["uid"]
@@ -67,14 +68,15 @@ class TestDatasetLifecycleIntegration:
             assert any(field.get("uid") == field_uid for field in listed_fields)
 
             updated_payload = {
-                "name": "lifecycle_test_field",
-                "label": "Lifecycle Test Field Updated",
-                "description": "Updated by integration lifecycle test",
-                "type": "text",
+                "type": "rename",
+                "label": "Lifecycle rename processor updated",
+                "from_name": "lifecycle_source_field",
+                "to_name": "lifecycle_target_field_v2",
+                "field_label": "Lifecycle Target Field V2",
             }
             dataset.update_field_configuration(field_uid, updated_payload)
             retrieved_field = dataset.retrieve_field_configuration(field_uid)
-            assert retrieved_field["label"] == "Lifecycle Test Field Updated"
+            assert retrieved_field["label"] == "Lifecycle rename processor updated"
 
         finally:
             # Cleanup field first (if still present), then dataset itself.
