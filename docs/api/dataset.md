@@ -35,6 +35,40 @@ created = HuwiseDataset.create(
 )
 ```
 
+### Creating datasets (validation and domain templates)
+
+`HuwiseDataset.create` blocks until the new dataset’s [status](https://help.opendatasoft.com/apis/ods-automation-v1/) is **idle**, so follow-up calls such as field configuration updates are safe immediately afterward.
+
+Metadata on create is validated by your Huwise domain. Templates and allowed
+values differ per domain; see [Metadata reference](../metadata-reference.md)
+for examples (e.g. DCAT-AP-CH codes, theme hashes). If `POST /datasets/`
+returns **400**, inspect `HuwiseAutomationError.detail` from the HTTP layer.
+
+**Recommended pattern** when domains reject large initial payloads: create with
+a minimal `default.title` (and optional `dataset_id`), then use setters
+(`set_relation`, `set_dcat_ap_ch_license`, etc.) for other templates.
+
+Optional helpers from `huwise_utils_py`:
+
+- `strip_empty_metadata_values(metadata)` — drop `{"value": ""}`, `[]`, or
+  `null` field entries before create to avoid sending empty cells the API rejects.
+- `assert_non_empty_dataset_id(dataset_id)` — `create` already rejects a blank
+  `dataset_id` when provided; you can reuse this helper in your own pipelines.
+
+```python
+from huwise_utils_py import HuwiseDataset, strip_empty_metadata_values
+
+metadata = strip_empty_metadata_values(
+    {
+        "default": {
+            "title": {"value": "My dataset"},
+            "description": {"value": ""},
+        }
+    }
+)
+created = HuwiseDataset.create(metadata=metadata, dataset_id="my-slug")
+```
+
 ### Reading Metadata
 
 ```python
@@ -129,6 +163,9 @@ dataset.unpublish()
 
 # Refresh dataset (re-process)
 dataset.refresh()
+
+# Delete dataset
+dataset.delete()
 ```
 
 ### Dataset Schema And Field Configuration
@@ -245,6 +282,7 @@ This is more efficient than calling each setter with `publish=True` because it o
         - publish
         - unpublish
         - refresh
+        - delete
         - update_configuration
         - list_field_configurations
         - retrieve_field_configuration

@@ -11,6 +11,7 @@ from typing import Any, NotRequired, Self, TypedDict
 from huwise_utils_py.config import HuwiseConfig
 from huwise_utils_py.http import HttpClient
 from huwise_utils_py.logger import get_logger
+from huwise_utils_py.utils.metadata import assert_non_empty_dataset_id
 
 logger = get_logger(__name__)
 
@@ -155,6 +156,7 @@ class HuwiseDataset:
         payload: DatasetCreatePayload = {"metadata": metadata}
 
         if dataset_id is not None:
+            assert_non_empty_dataset_id(dataset_id)
             payload["dataset_id"] = dataset_id
         if is_restricted is not None:
             payload["is_restricted"] = is_restricted
@@ -174,7 +176,9 @@ class HuwiseDataset:
             dataset_id=dataset_id,
             is_restricted=is_restricted,
         )
-        return cls(uid=uid, config=config)
+        instance = cls(uid=uid, config=config)
+        instance._wait_for_idle()
+        return instance
 
     def _wait_for_idle(self) -> None:
         """Wait until the dataset status is idle."""
@@ -780,6 +784,16 @@ class HuwiseDataset:
         logger.info("Refreshed dataset", uid=self.uid)
         return self
 
+    def delete(self) -> None:
+        """Delete the dataset.
+
+        After successful deletion, this instance should no longer be used for
+        API operations that require the dataset to exist.
+        """
+        self._wait_for_idle()
+        self._client.delete(f"/datasets/{self.uid}/")
+        logger.info("Deleted dataset", uid=self.uid)
+
     def update_configuration(
         self,
         *,
@@ -861,6 +875,7 @@ class HuwiseDataset:
         Returns:
             Created field configuration response.
         """
+        self._wait_for_idle()
         response = self._client.post(f"/datasets/{self.uid}/fields/", json=field_configuration)
         logger.info("Appended dataset field configuration", uid=self.uid, field_type=field_configuration.get("type"))
         return response.json()
@@ -875,6 +890,7 @@ class HuwiseDataset:
         Returns:
             Updated field configuration response.
         """
+        self._wait_for_idle()
         response = self._client.put(f"/datasets/{self.uid}/fields/{field_uid}/", json=field_configuration)
         logger.info(
             "Updated dataset field configuration",
@@ -893,6 +909,7 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
+        self._wait_for_idle()
         self._client.delete(f"/datasets/{self.uid}/fields/{field_uid}/")
         logger.info("Deleted dataset field configuration", uid=self.uid, field_uid=field_uid)
         return self

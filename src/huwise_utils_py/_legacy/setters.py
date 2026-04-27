@@ -40,6 +40,21 @@ def create_dataset(
     )
 
 
+def delete_dataset(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> None:
+    """Delete a dataset.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    dataset.delete()
+
+
 def set_dataset_public(
     dataset_id: str | None = None,
     dataset_uid: str | None = None,

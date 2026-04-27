@@ -339,18 +339,24 @@ sync_dataset("100123")
 
 ```python
 import httpx
-from huwise_utils_py import HuwiseDataset
+from huwise_utils_py import HuwiseAutomationError, HuwiseDataset
 
 try:
     dataset = HuwiseDataset.from_id("999999")
     metadata = dataset.get_metadata()
-except httpx.HTTPStatusError as e:
+except HuwiseAutomationError as e:
+    # Subclass of httpx.HTTPStatusError; str(e) includes URL and body preview
     if e.response.status_code == 404:
         print("Dataset not found")
     elif e.response.status_code == 403:
         print("Access denied - check your API key")
+    elif e.response.status_code == 400 and e.detail is not None:
+        print("Validation / bad request:", e.detail)
     else:
         print(f"HTTP error: {e.response.status_code}")
+except httpx.HTTPStatusError:
+    # Other httpx paths (e.g. raw httpx usage) still work
+    raise
 except httpx.ConnectError:
     print("Could not connect to API")
 ```
@@ -365,6 +371,22 @@ try:
     validate_dataset_identifier()
 except ValueError as e:
     print(f"Validation error: {e}")
+```
+
+### Dataset create metadata (optional helpers)
+
+```python
+from huwise_utils_py import HuwiseDataset, strip_empty_metadata_values
+
+metadata = strip_empty_metadata_values(
+    {
+        "default": {
+            "title": {"value": "Title"},
+            "publisher": {"value": ""},
+        },
+    }
+)
+HuwiseDataset.create(metadata=metadata, dataset_id="my-dataset-id")
 ```
 
 ## Integration Patterns

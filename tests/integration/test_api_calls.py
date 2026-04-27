@@ -1,7 +1,7 @@
-"""Integration tests for API calls.
+"""Tests for API calls.
 
 These tests make real API calls against dataset ID 100522 (UID: da_tbcnel).
-Run manually with: uv run pytest tests/integration/ -v
+Run manually with: uv run pytest tests/ -v
 
 Note: These tests require valid API credentials in environment variables:
     - HUWISE_API_KEY
@@ -17,14 +17,11 @@ TEST_DATASET_ID = "100522"
 TEST_DATASET_UID = "da_tbcnel"
 
 # Skip all tests in this module if no API key is configured
-pytestmark = pytest.mark.skipif(
-    not os.getenv("HUWISE_API_KEY"),
-    reason="HUWISE_API_KEY not set - skipping integration tests",
-)
+pytestmark = pytest.mark.skipif(not os.getenv("HUWISE_API_KEY"), reason="HUWISE_API_KEY not set - skipping tests")
 
 
-class TestConfigIntegration:
-    """Integration tests for configuration."""
+class TestConfig:
+    """Tests for configuration."""
 
     def test_huwise_config_from_env_loads_successfully(self) -> None:
         """Test that config loads from environment successfully."""
@@ -46,8 +43,8 @@ class TestConfigIntegration:
         assert "automation" in config.base_url
 
 
-class TestHttpClientIntegration:
-    """Integration tests for HTTP client."""
+class TestHttpClient:
+    """Tests for HTTP client."""
 
     def test_http_client_can_make_basic_request(self) -> None:
         """Test that HTTP client can make a basic request."""
@@ -82,8 +79,8 @@ class TestHttpClientIntegration:
             assert "is_published" in result
 
 
-class TestDatasetInfoIntegration:
-    """Integration tests for dataset information retrieval."""
+class TestDatasetInfo:
+    """Tests for dataset information retrieval."""
 
     def test_get_number_of_datasets_returns_positive_int(self) -> None:
         """Test that get_number_of_datasets returns a positive integer."""
@@ -115,8 +112,8 @@ class TestDatasetInfoIntegration:
         assert uid.startswith("da_")
 
 
-class TestHuwiseDatasetGettersIntegration:
-    """Integration tests for HuwiseDataset getter methods."""
+class TestHuwiseDatasetGetters:
+    """Tests for HuwiseDataset getter methods."""
 
     def test_huwise_dataset_from_id_with_known_dataset(self) -> None:
         """Test that HuwiseDataset.from_id works with known dataset ID."""
@@ -202,8 +199,8 @@ class TestHuwiseDatasetGettersIntegration:
             assert template in metadata, f"Missing template: {template}"
 
 
-class TestLegacyFunctionsIntegration:
-    """Integration tests for function-based API."""
+class TestLegacyFunctions:
+    """Tests for function-based API."""
 
     def test_get_dataset_title_with_uid(self) -> None:
         """Test get_dataset_title with dataset_uid parameter."""

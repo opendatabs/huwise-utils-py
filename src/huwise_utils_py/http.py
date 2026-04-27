@@ -14,6 +14,7 @@ from typing import Any
 import httpx
 
 from huwise_utils_py.config import HuwiseConfig
+from huwise_utils_py.errors import HuwiseAutomationError
 from huwise_utils_py.logger import get_logger
 
 logger = get_logger(__name__)
@@ -22,35 +23,39 @@ logger = get_logger(__name__)
 DEFAULT_TIMEOUT = httpx.Timeout(30.0, connect=10.0)
 DEFAULT_LIMITS = httpx.Limits(max_connections=100, max_keepalive_connections=20)
 
-# HTTP errors that should trigger a retry
-HTTP_ERRORS_TO_RETRY = (
+# Transient transport / TLS failures (always retry when decorator applies)
+_RETRYABLE_NETWORK = (
     ConnectionResetError,
     httpx.ConnectError,
     httpx.ReadTimeout,
     httpx.WriteTimeout,
     httpx.ConnectTimeout,
-    httpx.HTTPStatusError,
     ssl.SSLCertVerificationError,
 )
 
 
-def retry(
-    exceptions_to_check: type[Exception] | tuple[type[Exception], ...],
-    tries: int = 4,
-    delay: float = 3,
-    backoff: float = 2,
-) -> Any:
-    """Retry decorator with exponential backoff.
+def _is_retryable_error(exc: BaseException) -> bool:
+    """Return True if the exception warrants an automatic retry."""
+    if isinstance(exc, _RETRYABLE_NETWORK):
+        return True
+    if isinstance(exc, httpx.HTTPStatusError):
+        code = exc.response.status_code
+        if not isinstance(code, int):
+            return False
+        if code == 429 or code >= 500:
+            return True
+    return False
 
-    Args:
-        exceptions_to_check: Exception(s) to catch and retry on.
-        tries: Number of attempts before giving up.
-        delay: Initial delay between retries in seconds.
-        backoff: Multiplier for delay after each retry.
 
-    Returns:
-        Decorated function with retry logic.
-    """
+def _check_response(response: httpx.Response) -> None:
+    """Raise :class:`HuwiseAutomationError` when status is 4xx or 5xx."""
+    code = response.status_code
+    if isinstance(code, int) and code >= 400:
+        raise HuwiseAutomationError.from_response(response)
+
+
+def retry_automation_http(tries: int = 6, delay: float = 5, backoff: float = 1) -> Any:
+    """Retry decorator: network errors, 5xx, and 429 only (not other 4xx)."""
 
     def decorator(func: Any) -> Any:
         @functools.wraps(func)
@@ -59,7 +64,9 @@ def retry(
             while mtries > 1:
                 try:
                     return func(*args, **kwargs)
-                except exceptions_to_check as e:
+                except Exception as e:
+                    if not _is_retryable_error(e):
+                        raise
                     logger.warning(
                         "Request failed, retrying",
                         error=str(e),
@@ -101,7 +108,7 @@ class HttpClient:
         """
         self.config = config
 
-    @retry(HTTP_ERRORS_TO_RETRY, tries=6, delay=5, backoff=1)
+    @retry_automation_http(tries=6, delay=5, backoff=1)
     def get(self, endpoint: str, **kwargs: Any) -> httpx.Response:
         """Make a GET request.
 
@@ -113,15 +120,16 @@ class HttpClient:
             HTTP response object.
 
         Raises:
-            httpx.HTTPStatusError: If response indicates an error.
+            HuwiseAutomationError: If response status is 4xx or 5xx (subclass of
+                :class:`httpx.HTTPStatusError`).
         """
         url = f"{self.config.base_url}{endpoint}"
         with httpx.Client(timeout=DEFAULT_TIMEOUT) as client:
             response = client.get(url, headers=self.config.headers, **kwargs)
-            response.raise_for_status()
+            _check_response(response)
             return response
 
-    @retry(HTTP_ERRORS_TO_RETRY, tries=6, delay=5, backoff=1)
+    @retry_automation_http(tries=6, delay=5, backoff=1)
     def post(self, endpoint: str, **kwargs: Any) -> httpx.Response:
         """Make a POST request.
 
@@ -131,14 +139,17 @@ class HttpClient:
 
         Returns:
             HTTP response object.
+
+        Raises:
+            HuwiseAutomationError: If response status is 4xx or 5xx.
         """
         url = f"{self.config.base_url}{endpoint}"
         with httpx.Client(timeout=DEFAULT_TIMEOUT) as client:
             response = client.post(url, headers=self.config.headers, **kwargs)
-            response.raise_for_status()
+            _check_response(response)
             return response
 
-    @retry(HTTP_ERRORS_TO_RETRY, tries=6, delay=5, backoff=1)
+    @retry_automation_http(tries=6, delay=5, backoff=1)
     def put(self, endpoint: str, **kwargs: Any) -> httpx.Response:
         """Make a PUT request.
 
@@ -148,14 +159,17 @@ class HttpClient:
 
         Returns:
             HTTP response object.
+
+        Raises:
+            HuwiseAutomationError: If response status is 4xx or 5xx.
         """
         url = f"{self.config.base_url}{endpoint}"
         with httpx.Client(timeout=DEFAULT_TIMEOUT) as client:
             response = client.put(url, headers=self.config.headers, **kwargs)
-            response.raise_for_status()
+            _check_response(response)
             return response
 
-    @retry(HTTP_ERRORS_TO_RETRY, tries=6, delay=5, backoff=1)
+    @retry_automation_http(tries=6, delay=5, backoff=1)
     def patch(self, endpoint: str, **kwargs: Any) -> httpx.Response:
         """Make a PATCH request.
 
@@ -165,14 +179,17 @@ class HttpClient:
 
         Returns:
             HTTP response object.
+
+        Raises:
+            HuwiseAutomationError: If response status is 4xx or 5xx.
         """
         url = f"{self.config.base_url}{endpoint}"
         with httpx.Client(timeout=DEFAULT_TIMEOUT) as client:
             response = client.patch(url, headers=self.config.headers, **kwargs)
-            response.raise_for_status()
+            _check_response(response)
             return response
 
-    @retry(HTTP_ERRORS_TO_RETRY, tries=6, delay=5, backoff=1)
+    @retry_automation_http(tries=6, delay=5, backoff=1)
     def delete(self, endpoint: str, **kwargs: Any) -> httpx.Response:
         """Make a DELETE request.
 
@@ -182,11 +199,14 @@ class HttpClient:
 
         Returns:
             HTTP response object.
+
+        Raises:
+            HuwiseAutomationError: If response status is 4xx or 5xx.
         """
         url = f"{self.config.base_url}{endpoint}"
         with httpx.Client(timeout=DEFAULT_TIMEOUT) as client:
             response = client.delete(url, headers=self.config.headers, **kwargs)
-            response.raise_for_status()
+            _check_response(response)
             return response
 
 
@@ -244,11 +264,14 @@ class AsyncHttpClient:
 
         Returns:
             HTTP response object.
+
+        Raises:
+            HuwiseAutomationError: If response status is 4xx or 5xx.
         """
         url = f"{self.config.base_url}{endpoint}"
         async with self.session() as client:
             response = await client.get(url, **kwargs)
-            response.raise_for_status()
+            _check_response(response)
             return response
 
     async def post(self, endpoint: str, **kwargs: Any) -> httpx.Response:
@@ -260,11 +283,14 @@ class AsyncHttpClient:
 
         Returns:
             HTTP response object.
+
+        Raises:
+            HuwiseAutomationError: If response status is 4xx or 5xx.
         """
         url = f"{self.config.base_url}{endpoint}"
         async with self.session() as client:
             response = await client.post(url, **kwargs)
-            response.raise_for_status()
+            _check_response(response)
             return response
 
     async def put(self, endpoint: str, **kwargs: Any) -> httpx.Response:
@@ -276,9 +302,12 @@ class AsyncHttpClient:
 
         Returns:
             HTTP response object.
+
+        Raises:
+            HuwiseAutomationError: If response status is 4xx or 5xx.
         """
         url = f"{self.config.base_url}{endpoint}"
         async with self.session() as client:
             response = await client.put(url, **kwargs)
-            response.raise_for_status()
+            _check_response(response)
             return response
