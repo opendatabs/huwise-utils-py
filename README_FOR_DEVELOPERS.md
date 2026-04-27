@@ -119,9 +119,7 @@ huwise-utils-py/
 │       ├── getters.py        # get_dataset_* functions
 │       └── setters.py        # set_dataset_* functions
 ├── tests/
-│   ├── conftest.py           # Shared fixtures
-│   ├── unit/                 # Unit tests (mocked)
-│   └── integration/          # Integration tests (real API)
+│   └── ...                   # Test modules
 ├── docs/                     # MkDocs documentation
 ├── pyproject.toml            # Project configuration
 └── .pre-commit-config.yaml   # Pre-commit hooks
@@ -142,7 +140,7 @@ huwise-utils-py/
 
 1. Add the method to `src/huwise_utils_py/dataset.py`
 2. Follow the existing patterns for getters/setters
-3. Add unit tests in `tests/unit/test_dataset.py`
+3. Add tests in `tests/`
 4. Update documentation in `docs/api/dataset.md`
 
 Example:
@@ -198,26 +196,20 @@ Don't forget to:
 
 ## Testing
 
-### Unit Tests
-
-Unit tests use mocked dependencies and don't require real API credentials:
-
-```bash
-uv run pytest tests/unit/ -v
-```
-
-### Integration Tests
-
-Integration tests make real API calls and require valid credentials:
-
-```bash
-uv run pytest tests/integration/ -v
-```
-
-### All Tests
+### Run Tests
 
 ```bash
 uv run pytest -v
+```
+
+Tests that call the API require `HUWISE_API_KEY` (and usually `HUWISE_DOMAIN`)
+in your environment.
+
+Run the lifecycle test (create restricted dataset -> update metadata/schema ->
+delete dataset):
+
+```bash
+uv run pytest tests/integration/test_dataset_lifecycle.py -v
 ```
 
 ### With Coverage

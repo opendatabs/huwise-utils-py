@@ -9,9 +9,12 @@ The library provides two HTTP clients:
 - **HttpClient**: Synchronous client for simple use cases
 - **AsyncHttpClient**: Asynchronous client for concurrent operations
 
-Both clients include:
+`HttpClient` includes automatic retry with exponential backoff for transient
+failures. `AsyncHttpClient` does not retry requests but raises the same
+`HuwiseAutomationError` on error responses.
 
-- Automatic retry with exponential backoff
+Both clients provide:
+
 - Proper timeout handling
 - Connection pooling (async)
 - HTTP/2 support (async)
@@ -74,11 +77,17 @@ response = client.get("/datasets/", headers={"X-Custom": "value"})
 
 ## Retry Logic
 
-Both clients use automatic retry for transient errors:
+`HttpClient` retries only **transient** failures:
 
-- Connection errors
-- Timeout errors
-- HTTP 5xx errors
+- Connection and TLS errors
+- Read/write/connect timeouts
+- HTTP **5xx** responses
+- HTTP **429** (rate limit)
+
+**4xx** responses (except 429) are **not** retried. On error, the client raises
+`HuwiseAutomationError` (a subclass of `httpx.HTTPStatusError`) with a message
+that includes a preview of the response body and, when JSON, a parsed `detail`
+attribute for validation errors.
 
 Default settings:
 

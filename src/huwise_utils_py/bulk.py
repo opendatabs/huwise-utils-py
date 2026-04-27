@@ -14,6 +14,43 @@ from huwise_utils_py.logger import get_logger
 logger = get_logger(__name__)
 
 
+def _looks_like_dataset_uid(value: str) -> bool:
+    """Return True when identifier appears to be a dataset UID."""
+    return value.startswith("da_")
+
+
+def _resolve_ids_to_uids_sync(
+    identifiers: list[str],
+    client: HttpClient,
+) -> tuple[list[str], dict[str, str], list[str]]:
+    """Resolve dataset IDs to UIDs while accepting UID-like input values.
+
+    Returns:
+        Tuple of (uids, uid_to_dataset_id, unresolved_dataset_ids).
+    """
+    uids: list[str] = []
+    uid_to_dataset_id: dict[str, str] = {}
+    unresolved_ids: list[str] = []
+
+    for dataset_id in identifiers:
+        if _looks_like_dataset_uid(dataset_id):
+            uids.append(dataset_id)
+            continue
+
+        response = client.get("/datasets/", params={"dataset_id": dataset_id})
+        results = response.json().get("results", [])
+        if not results:
+            logger.warning("Could not resolve dataset_id to uid", dataset_id=dataset_id)
+            unresolved_ids.append(dataset_id)
+            continue
+
+        uid = results[0]["uid"]
+        uids.append(uid)
+        uid_to_dataset_id[uid] = dataset_id
+
+    return uids, uid_to_dataset_id, unresolved_ids
+
+
 # =============================================================================
 # Async Bulk Operations
 # =============================================================================
@@ -57,16 +94,12 @@ async def bulk_get_metadata_async(
     config = config or HuwiseConfig.from_env()
     client = AsyncHttpClient(config)
 
-    # Resolve dataset_ids to uids if needed, building a uid -> id map
     id_to_uid: dict[str, str] = {}
     uids: list[str] = []
+    unresolved_ids: list[str] = []
     if dataset_ids is not None:
         sync_client = HttpClient(config)
-        for dataset_id in dataset_ids:
-            response = sync_client.get("/datasets/", params={"dataset_id": dataset_id})
-            uid: str = response.json()["results"][0]["uid"]
-            uids.append(uid)
-            id_to_uid[uid] = dataset_id
+        uids, id_to_uid, unresolved_ids = _resolve_ids_to_uids_sync(dataset_ids, sync_client)
     elif dataset_uids is not None:
         uids = dataset_uids
 
@@ -77,6 +110,8 @@ async def bulk_get_metadata_async(
         responses = await asyncio.gather(*tasks, return_exceptions=True)
 
     result: dict[str, dict[str, Any]] = {}
+    for dataset_id in unresolved_ids:
+        result[dataset_id] = {"error": f"Could not resolve dataset_id '{dataset_id}' to uid"}
     for uid, response in zip(uids, responses, strict=True):
         key = id_to_uid.get(uid, uid)
         if isinstance(response, Exception):
@@ -230,21 +265,19 @@ def bulk_get_metadata(
     config = config or HuwiseConfig.from_env()
     client = HttpClient(config)
 
-    # Resolve dataset_ids to uids if needed, building a uid -> id map
     id_to_uid: dict[str, str] = {}
     uids: list[str] = []
+    unresolved_ids: list[str] = []
     if dataset_ids is not None:
-        for dataset_id in dataset_ids:
-            response = client.get("/datasets/", params={"dataset_id": dataset_id})
-            uid: str = response.json()["results"][0]["uid"]
-            uids.append(uid)
-            id_to_uid[uid] = dataset_id
+        uids, id_to_uid, unresolved_ids = _resolve_ids_to_uids_sync(dataset_ids, client)
     elif dataset_uids is not None:
         uids = dataset_uids
 
     logger.info("Starting bulk metadata fetch", dataset_count=len(uids))
 
     result: dict[str, dict[str, Any]] = {}
+    for dataset_id in unresolved_ids:
+        result[dataset_id] = {"error": f"Could not resolve dataset_id '{dataset_id}' to uid"}
     for uid in uids:
         key = id_to_uid.get(uid, uid)
         try:

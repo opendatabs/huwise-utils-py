@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "huwise-utils-py"
-version = "1.4.0"
+version = "1.4.1"
 description = "A Python wrapper library for the Huwise Automation API"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -45,6 +45,7 @@ dev = [
     "ty>=0.0.9",
     "pre-commit>=4.0.0",
     "coverage>=7.6.0",
+    "pytest-cov>=7.1.0",
 ]
 docs = [
     "mkdocs-material>=9.5.0",

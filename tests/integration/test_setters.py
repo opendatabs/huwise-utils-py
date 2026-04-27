@@ -1,10 +1,10 @@
-"""Integration tests for setter methods.
+"""Tests for setter methods.
 
 These tests make real API calls and modify dataset 100522 (UID: da_tbcnel).
 Each test stores the original value, modifies it, verifies the change,
 then restores the original value.
 
-Run manually with: uv run pytest tests/integration/test_setters.py -v
+Run manually with: uv run pytest tests/ -v
 
 Warning: These tests modify real data. They attempt to restore original values,
 but failures during restoration could leave the dataset in a modified state.
@@ -24,14 +24,11 @@ TEST_DATASET_ID = "100522"
 TEST_DATASET_UID = "da_tbcnel"
 
 # Skip all tests in this module if no API key is configured
-pytestmark = pytest.mark.skipif(
-    not os.getenv("HUWISE_API_KEY"),
-    reason="HUWISE_API_KEY not set - skipping integration tests",
-)
+pytestmark = pytest.mark.skipif(not os.getenv("HUWISE_API_KEY"), reason="HUWISE_API_KEY not set - skipping tests")
 
 
-class TestHuwiseDatasetSettersIntegration:
-    """Integration tests for HuwiseDataset setter methods with restore logic."""
+class TestHuwiseDatasetSetters:
+    """Tests for HuwiseDataset setter methods with restore logic."""
 
     def test_set_dataset_title_updates_and_restores(self) -> None:
         """Test that set_title updates the title and can be restored."""
@@ -139,8 +136,8 @@ class TestHuwiseDatasetSettersIntegration:
                 assert restored_publisher == original_publisher
 
 
-class TestMethodChainingIntegration:
-    """Integration tests for method chaining."""
+class TestMethodChaining:
+    """Tests for method chaining."""
 
     def test_method_chaining_multiple_fields(self) -> None:
         """Test that method chaining works correctly with multiple fields."""
@@ -189,8 +186,8 @@ class TestMethodChainingIntegration:
             dataset.publish()
 
 
-class TestPublishWorkflowIntegration:
-    """Integration tests for publish/unpublish workflow."""
+class TestPublishWorkflow:
+    """Tests for publish/unpublish workflow."""
 
     def test_publish_after_modifications(self) -> None:
         """Test that publish works after modifications."""
@@ -238,8 +235,8 @@ class TestPublishWorkflowIntegration:
         assert "default" in metadata2
 
 
-class TestLegacySetterFunctionsIntegration:
-    """Integration tests for function-based setter API."""
+class TestLegacySetterFunctions:
+    """Tests for function-based setter API."""
 
     def test_set_dataset_title_function(self) -> None:
         """Test set_dataset_title function works correctly."""

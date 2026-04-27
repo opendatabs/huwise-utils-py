@@ -1,7 +1,7 @@
-"""Integration tests for bulk operations.
+"""Tests for bulk operations.
 
 These tests make real API calls and require valid credentials.
-Run manually with: uv run pytest tests/integration/ -v
+Run manually with: uv run pytest tests/ -v
 """
 
 import os
@@ -9,14 +9,11 @@ import os
 import pytest
 
 # Skip all tests in this module if no API key is configured
-pytestmark = pytest.mark.skipif(
-    not os.getenv("HUWISE_API_KEY"),
-    reason="HUWISE_API_KEY not set - skipping integration tests",
-)
+pytestmark = pytest.mark.skipif(not os.getenv("HUWISE_API_KEY"), reason="HUWISE_API_KEY not set - skipping tests")
 
 
-class TestBulkOperationsIntegration:
-    """Integration tests for bulk operations."""
+class TestBulkOperations:
+    """Tests for bulk operations."""
 
     def test_bulk_get_metadata_returns_dict(self) -> None:
         """Test that bulk_get_metadata returns a dictionary of metadata."""

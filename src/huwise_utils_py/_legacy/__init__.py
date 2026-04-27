@@ -41,6 +41,7 @@ from huwise_utils_py._legacy.getters import (
 from huwise_utils_py._legacy.setters import (
     append_dataset_field_configuration,
     create_dataset,
+    delete_dataset,
     delete_dataset_field_configuration,
     set_dataset_accrualperiodicity,
     set_dataset_contact_email,
@@ -73,6 +74,7 @@ from huwise_utils_py._legacy.setters import (
 __all__ = [
     "append_dataset_field_configuration",
     "create_dataset",
+    "delete_dataset",
     "delete_dataset_field_configuration",
     "get_all_dataset_ids",
     "get_dataset_accrualperiodicity",

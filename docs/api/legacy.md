@@ -16,6 +16,7 @@ The function-based API provides standalone functions for common operations. Thes
 ```python
 from huwise_utils_py import (
     create_dataset,
+    delete_dataset,
     get_dataset_title,
     get_dataset_description,
     get_dataset_keywords,
@@ -72,6 +73,15 @@ created_dataset = create_dataset(
     metadata={"default": {"title": {"value": "New Dataset"}}},
     dataset_id="new-dataset",
 )
+
+# Easier create: metadata is optional
+created_dataset_2 = create_dataset(
+    dataset_id="new-dataset-2",
+    title="New Dataset 2",
+)
+
+# Delete a dataset by ID or UID
+delete_dataset(dataset_id="new-dataset")
 ```
 
 ### Setters
@@ -79,6 +89,7 @@ created_dataset = create_dataset(
 ```python
 from huwise_utils_py import (
     append_dataset_field_configuration,
+    delete_dataset,
     delete_dataset_field_configuration,
     set_dataset_title,
     set_dataset_description,
@@ -162,6 +173,9 @@ update_dataset_field_configuration(
 )
 
 delete_dataset_field_configuration(processor["uid"], dataset_id="100123")
+
+# Delete a dataset by ID or UID
+delete_dataset(dataset_id="100123")
 ```
 
 ## Comparison with HuwiseDataset
@@ -179,9 +193,7 @@ from huwise_utils_py import HuwiseDataset
 
 dataset = HuwiseDataset.from_id("100123")
 title = dataset.get_title()
-dataset.set_title("New Title", publish=False) \
-       .set_description("Desc") \
-       .publish()
+dataset.set_title("New Title", publish=False).set_description("Desc").publish()
 ```
 
 ## Available Functions
@@ -224,6 +236,7 @@ dataset.set_title("New Title", publish=False) \
 | --- | --- |
 | `set_dataset_public()` | Publish/unpublish dataset |
 | `create_dataset()` | Create a new dataset and return a `HuwiseDataset` instance |
+| `delete_dataset()` | Delete a dataset by `dataset_id` or `dataset_uid` |
 | `set_dataset_title()` | Set dataset title |
 | `set_dataset_description()` | Set dataset description |
 | `set_dataset_keywords()` | Set dataset keywords |

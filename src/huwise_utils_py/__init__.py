@@ -26,6 +26,7 @@ Examples:
 from huwise_utils_py._legacy import (
     append_dataset_field_configuration,
     create_dataset,
+    delete_dataset,
     delete_dataset_field_configuration,
     get_all_dataset_ids,
     get_dataset_accrualperiodicity,
@@ -92,22 +93,32 @@ from huwise_utils_py.bulk import (
 )
 from huwise_utils_py.config import HuwiseConfig
 from huwise_utils_py.dataset import LICENSE_MAP, HuwiseDataset
+from huwise_utils_py.errors import HuwiseAutomationError
 from huwise_utils_py.http import AsyncHttpClient, HttpClient
 from huwise_utils_py.logger import get_logger, init_logger
 
 # Utilities
-from huwise_utils_py.utils import retry, validate_dataset_identifier
+from huwise_utils_py.utils import (
+    assert_non_empty_dataset_id,
+    build_create_dataset_metadata,
+    retry,
+    strip_empty_metadata_values,
+    validate_dataset_identifier,
+)
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 
 __all__ = [
     "LICENSE_MAP",
     "AsyncHttpClient",
     "HttpClient",
+    "HuwiseAutomationError",
     "HuwiseConfig",
     "HuwiseDataset",
     "__version__",
     "append_dataset_field_configuration",
+    "assert_non_empty_dataset_id",
+    "build_create_dataset_metadata",
     "bulk_get_dataset_ids",
     "bulk_get_dataset_ids_async",
     "bulk_get_metadata",
@@ -115,6 +126,7 @@ __all__ = [
     "bulk_update_metadata",
     "bulk_update_metadata_async",
     "create_dataset",
+    "delete_dataset",
     "delete_dataset_field_configuration",
     "get_all_dataset_ids",
     "get_dataset_accrualperiodicity",
@@ -171,6 +183,7 @@ __all__ = [
     "set_dataset_theme",
     "set_dataset_title",
     "set_template_metadata",
+    "strip_empty_metadata_values",
     "update_dataset_configuration",
     "update_dataset_field_configuration",
     "validate_dataset_identifier",
