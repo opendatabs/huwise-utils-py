@@ -536,3 +536,25 @@ def get_dataset_field_configuration(
     uid = validate_dataset_identifier(dataset_id, dataset_uid)
     dataset = HuwiseDataset(uid=uid)
     return dataset.retrieve_field_configuration(field_uid)
+
+
+def list_dataset_resources(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+    limit: int | None = None,
+    offset: int | None = None,
+) -> dict[str, Any]:
+    """List resources for a dataset.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+        limit: Optional pagination limit.
+        offset: Optional pagination offset.
+
+    Returns:
+        Paginated response with resources.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.list_resources(limit=limit, offset=offset)

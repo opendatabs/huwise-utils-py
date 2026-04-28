@@ -18,6 +18,10 @@ def create_dataset(
     dataset_id: str | None = None,
     is_restricted: bool | None = None,
     default_security: DatasetSecurity | None = None,
+    resource_source_url: str | None = None,
+    resource_title: str | None = None,
+    resource_extractor_type: str | None = None,
+    resource_headers: list[dict[str, str]] | None = None,
     config: HuwiseConfig | None = None,
 ) -> HuwiseDataset:
     """Create a new dataset.
@@ -28,6 +32,11 @@ def create_dataset(
         dataset_id: Optional human-readable dataset identifier.
         is_restricted: Optional restriction flag.
         default_security: Optional default security ruleset.
+        resource_source_url: Optional HTTP(S) source URL to upsert as a
+            resource right after dataset creation.
+        resource_title: Optional title used for the created/updated resource.
+        resource_extractor_type: Optional extractor type for the resource.
+        resource_headers: Optional connection headers for the resource.
         config: Optional configuration override.
 
     Returns:
@@ -39,6 +48,10 @@ def create_dataset(
         dataset_id=dataset_id,
         is_restricted=is_restricted,
         default_security=default_security,
+        resource_source_url=resource_source_url,
+        resource_title=resource_title,
+        resource_extractor_type=resource_extractor_type,
+        resource_headers=resource_headers,
         config=config,
     )
 
@@ -661,3 +674,52 @@ def delete_dataset_field_configuration(
     uid = validate_dataset_identifier(dataset_id, dataset_uid)
     dataset = HuwiseDataset(uid=uid)
     dataset.delete_field_configuration(field_uid)
+
+
+def upsert_dataset_resource_http(
+    *,
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+    source_url: str,
+    title: str | None = None,
+    extractor_type: str | None = None,
+    headers: list[dict[str, str]] | None = None,
+) -> dict[str, Any]:
+    """Create or update an HTTP resource for a dataset idempotently.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+        source_url: Absolute HTTP(S) source URL.
+        title: Optional resource title.
+        extractor_type: Optional extractor type.
+        headers: Optional connection headers list.
+
+    Returns:
+        Created or updated resource payload.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.upsert_http_resource(
+        source_url=source_url,
+        title=title,
+        extractor_type=extractor_type,
+        headers=headers,
+    )
+
+
+def delete_dataset_resource(
+    resource_uid: str,
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> None:
+    """Delete a dataset resource by UID.
+
+    Args:
+        resource_uid: Resource UID.
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    dataset.delete_resource(resource_uid)

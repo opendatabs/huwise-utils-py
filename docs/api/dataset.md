@@ -32,6 +32,8 @@ created = HuwiseDataset.create(
     metadata={"default": {"title": {"value": "My New Dataset"}}},
     dataset_id="my-new-dataset",
     is_restricted=False,
+    resource_source_url="https://data-bs.ch/stata/fgi/stac/AFBA_Abfuhrzonen.geojson",
+    resource_title="my-new-dataset.geojson",
 )
 
 # Or let the library build minimal metadata automatically
@@ -209,6 +211,16 @@ updated_processor = dataset.update_field_configuration(
 )
 
 dataset.delete_field_configuration(updated_processor["uid"])
+
+# Resource management
+resources = dataset.list_resources(limit=100)
+
+resource = dataset.upsert_http_resource(
+    source_url="https://data-bs.ch/stata/fgi/stac/AFBA_Abfuhrzonen.geojson",
+    title="100095stac.geojson",
+)
+
+dataset.delete_resource(resource["uid"])
 ```
 
 ## Method Chaining
@@ -292,3 +304,6 @@ This is more efficient than calling each setter with `publish=True` because it o
         - append_field_configuration
         - update_field_configuration
         - delete_field_configuration
+        - list_resources
+        - upsert_http_resource
+        - delete_resource
