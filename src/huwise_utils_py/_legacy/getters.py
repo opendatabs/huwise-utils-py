@@ -451,6 +451,44 @@ def get_dataset_geographic_reference(
     return dataset.get_geographic_reference()
 
 
+def get_dataset_custom_field(
+    field_key: str,
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> Any:
+    """Get one custom metadata field from the ``custom`` template.
+
+    Args:
+        field_key: Field key in the ``custom`` template.
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        The custom field value or ``None`` when unset.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_custom_field(field_key)
+
+
+def get_dataset_tags(
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+) -> list[str]:
+    """Get dataset tags from ``default.tags``.
+
+    Args:
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+
+    Returns:
+        List of tags, or an empty list when tags are unset.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    return dataset.get_tags()
+
+
 def get_dataset_metadata_temporal_period(
     dataset_id: str | None = None,
     dataset_uid: str | None = None,

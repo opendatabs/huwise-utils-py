@@ -441,6 +441,46 @@ def set_dataset_geographic_reference(
     dataset.set_geographic_reference(references, publish=publish)
 
 
+def set_dataset_custom_field(
+    field_key: str,
+    value: Any,
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+    publish: bool = True,
+) -> None:
+    """Set a custom metadata field in the ``custom`` template.
+
+    Args:
+        field_key: Field key in the ``custom`` template.
+        value: Value to set. Must be JSON-serializable.
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+        publish: Whether to publish after updating.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    dataset.set_custom_field(field_key, value, publish=publish)
+
+
+def set_dataset_tags(
+    tags: list[str],
+    dataset_id: str | None = None,
+    dataset_uid: str | None = None,
+    publish: bool = True,
+) -> None:
+    """Set tags in ``default.tags`` for a dataset.
+
+    Args:
+        tags: List of tags (e.g. ``["opendata.swiss"]``).
+        dataset_id: The numeric identifier of the dataset.
+        dataset_uid: The unique string identifier (UID) of the dataset.
+        publish: Whether to publish after updating.
+    """
+    uid = validate_dataset_identifier(dataset_id, dataset_uid)
+    dataset = HuwiseDataset(uid=uid)
+    dataset.set_tags(tags, publish=publish)
+
+
 def set_dataset_modified(
     modified: str,
     dataset_id: str | None = None,

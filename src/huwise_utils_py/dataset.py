@@ -4,6 +4,7 @@ This module provides a dataclass-based interface for interacting with
 Huwise datasets, supporting method chaining and dependency injection.
 """
 
+import json
 import time
 from dataclasses import dataclass, field
 from typing import Any, NotRequired, Self, TypedDict
@@ -259,6 +260,22 @@ class HuwiseDataset:
 
         return self
 
+    @staticmethod
+    def _validate_field_key(field_key: str) -> str:
+        """Validate and normalize metadata field keys."""
+        normalized_key = field_key.strip()
+        if not normalized_key:
+            raise ValueError("field_key must be a non-empty string")
+        return normalized_key
+
+    @staticmethod
+    def _ensure_json_serializable(value: Any, *, value_name: str) -> None:
+        """Ensure metadata values can be encoded to JSON payloads."""
+        try:
+            json.dumps(value)
+        except TypeError as error:
+            raise ValueError(f"{value_name} must be JSON-serializable") from error
+
     # =========================================================================
     # Getters
     # =========================================================================
@@ -446,6 +463,31 @@ class HuwiseDataset:
             ``["ch_40_12"]``) or None if not set.
         """
         return self._get_metadata_value("default", "geographic_reference")
+
+    def get_custom_field(self, field_key: str) -> Any:
+        """Retrieve a field from the ``custom`` template.
+
+        Args:
+            field_key: Field key in the ``custom`` template.
+
+        Returns:
+            The stored custom field value or ``None`` when missing.
+        """
+        normalized_key = self._validate_field_key(field_key)
+        return self._get_metadata_value("custom", normalized_key)
+
+    def get_tags(self) -> list[str]:
+        """Retrieve dataset tags from ``default.tags``.
+
+        Returns:
+            List of dataset tags. Returns an empty list if tags are unset.
+        """
+        value = self._get_metadata_value("default", "tags")
+        if value is None:
+            return []
+        if not isinstance(value, list) or not all(isinstance(tag, str) for tag in value):
+            raise ValueError("default.tags metadata value must be a list[str]")
+        return value
 
     # =========================================================================
     # Setters (return Self for method chaining)
@@ -711,6 +753,38 @@ class HuwiseDataset:
             Self for method chaining.
         """
         return self._set_metadata_value("default", "geographic_reference", references, publish=publish)
+
+    def set_custom_field(self, field_key: str, value: Any, *, publish: bool = True) -> Self:
+        """Set a field in the ``custom`` metadata template.
+
+        Args:
+            field_key: Field key in the ``custom`` template.
+            value: Value to set for the field. Must be JSON-serializable.
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        normalized_key = self._validate_field_key(field_key)
+        self._ensure_json_serializable(value, value_name="value")
+        return self._set_metadata_value("custom", normalized_key, value, publish=publish)
+
+    def set_tags(self, tags: list[str], *, publish: bool = True) -> Self:
+        """Set dataset tags in ``default.tags``.
+
+        Args:
+            tags: List of tag strings (e.g. ``["opendata.swiss"]``).
+            publish: Whether to publish after updating.
+
+        Returns:
+            Self for method chaining.
+        """
+        if not isinstance(tags, list):
+            raise TypeError("tags must be a list[str]")
+        if any(not isinstance(tag, str) or not tag.strip() for tag in tags):
+            raise ValueError("tags must contain only non-empty strings")
+        self._ensure_json_serializable(tags, value_name="tags")
+        return self._set_metadata_value("default", "tags", tags, publish=publish)
 
     def set_modified(
         self,
