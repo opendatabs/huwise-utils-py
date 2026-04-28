@@ -113,7 +113,7 @@ from huwise_utils_py.utils import (
     validate_dataset_identifier,
 )
 
-__version__ = "1.4.2"
+__version__ = "1.5.0"
 
 __all__ = [
     "LICENSE_MAP",
