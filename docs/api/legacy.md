@@ -42,6 +42,8 @@ from huwise_utils_py import (
     # New default template getters
     get_dataset_modified,
     get_dataset_geographic_reference,
+    get_dataset_custom_field,
+    get_dataset_tags,
 )
 
 # Get metadata by dataset ID
@@ -67,6 +69,10 @@ issued = get_dataset_issued(dataset_id="100123")
 # Default template fields
 modified = get_dataset_modified(dataset_id="100123")
 geo_refs = get_dataset_geographic_reference(dataset_id="100123")
+tags = get_dataset_tags(dataset_id="100123")
+
+# Custom template fields
+publishing_org = get_dataset_custom_field("publizierende_organisation", dataset_id="100123")
 
 # Create a new dataset
 created_dataset = create_dataset(
@@ -117,6 +123,8 @@ from huwise_utils_py import (
     # New default template setters
     set_dataset_modified,
     set_dataset_geographic_reference,
+    set_dataset_custom_field,
+    set_dataset_tags,
     list_dataset_resources,
     update_dataset_configuration,
     update_dataset_field_configuration,
@@ -146,6 +154,26 @@ set_dataset_modified(
     dataset_id="100123",
     updates_on_metadata_change=True,
     updates_on_data_change=False,
+)
+
+# Set custom fields (custom.*)
+set_dataset_custom_field(
+    "publizierende_organisation",
+    "Open Data Basel-Stadt",
+    dataset_id="100123",
+)
+set_dataset_custom_field(
+    "geodaten_modellbeschreibung",
+    "Vektormodell gemäss kantonalem Schema v2.",
+    dataset_id="100123",
+    publish=False,
+)
+
+# Set tags (default.tags)
+set_dataset_tags(
+    ["opendata.swiss", "transport"],
+    dataset_id="100123",
+    publish=False,
 )
 
 # Update dataset-level configuration
@@ -194,6 +222,18 @@ delete_dataset_resource(resource["uid"], dataset_id="100095stac")
 delete_dataset(dataset_id="100123")
 ```
 
+### Template assumptions and publish behavior
+
+`set_dataset_custom_field()` and `get_dataset_custom_field()` operate on
+`custom.<field_key>`. `set_dataset_tags()` and `get_dataset_tags()` operate on
+`default.tags`.
+
+These fields must exist in your Huwise domain metadata template. If they do not
+exist, the API returns a metadata field error.
+
+All setter helpers default to `publish=True`. For multiple updates, use
+`publish=False` for intermediate calls and publish only once at the end.
+
 ## Comparison with HuwiseDataset
 
 ```python
@@ -241,6 +281,8 @@ dataset.set_title("New Title", publish=False).set_description("Desc").publish()
 | `get_dataset_relation()` | Get relation URL |
 | `get_dataset_modified()` | Get last-modified date (`default.modified`) |
 | `get_dataset_geographic_reference()` | Get geographic reference codes |
+| `get_dataset_custom_field()` | Get one field from the `custom` template |
+| `get_dataset_tags()` | Get tags from `default.tags` |
 | `get_dataset_metadata_temporal_period()` | Get temporal coverage |
 | `get_template_metadata()` | Get template-specific metadata |
 | `list_dataset_field_configurations()` | List dataset field configuration processors |
@@ -272,6 +314,8 @@ dataset.set_title("New Title", publish=False).set_description("Desc").publish()
 | `set_dataset_accrualperiodicity()` | Set accrual periodicity (EU frequency URI) |
 | `set_dataset_relation()` | Set relation URL |
 | `set_dataset_geographic_reference()` | Set geographic reference codes |
+| `set_dataset_custom_field()` | Set one field in the `custom` template |
+| `set_dataset_tags()` | Set tags in `default.tags` |
 | `set_dataset_modified()` | Set last-modified date with optional companion flags |
 | `set_dataset_metadata_temporal_period()` | Set both dates |
 | `set_dataset_metadata_temporal_coverage_start_date()` | Set start date |

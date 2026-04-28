@@ -36,6 +36,7 @@ from huwise_utils_py._legacy import (
     get_dataset_contributor,
     get_dataset_created,
     get_dataset_creator,
+    get_dataset_custom_field,
     get_dataset_custom_view,
     get_dataset_dcat_ap_ch_license,
     get_dataset_dcat_ap_ch_rights,
@@ -51,6 +52,7 @@ from huwise_utils_py._legacy import (
     get_dataset_modified,
     get_dataset_publisher,
     get_dataset_relation,
+    get_dataset_tags,
     get_dataset_theme,
     get_dataset_title,
     get_number_of_datasets,
@@ -64,6 +66,7 @@ from huwise_utils_py._legacy import (
     set_dataset_contributor,
     set_dataset_created,
     set_dataset_creator,
+    set_dataset_custom_field,
     set_dataset_dcat_ap_ch_license,
     set_dataset_dcat_ap_ch_rights,
     set_dataset_description,
@@ -79,6 +82,7 @@ from huwise_utils_py._legacy import (
     set_dataset_public,
     set_dataset_publisher,
     set_dataset_relation,
+    set_dataset_tags,
     set_dataset_theme,
     set_dataset_title,
     set_template_metadata,
@@ -109,7 +113,7 @@ from huwise_utils_py.utils import (
     validate_dataset_identifier,
 )
 
-__version__ = "1.4.2"
+__version__ = "1.5.0"
 
 __all__ = [
     "LICENSE_MAP",
@@ -139,6 +143,7 @@ __all__ = [
     "get_dataset_contributor",
     "get_dataset_created",
     "get_dataset_creator",
+    "get_dataset_custom_field",
     "get_dataset_custom_view",
     "get_dataset_dcat_ap_ch_license",
     "get_dataset_dcat_ap_ch_rights",
@@ -154,6 +159,7 @@ __all__ = [
     "get_dataset_modified",
     "get_dataset_publisher",
     "get_dataset_relation",
+    "get_dataset_tags",
     "get_dataset_theme",
     "get_dataset_title",
     "get_logger",
@@ -170,6 +176,7 @@ __all__ = [
     "set_dataset_contributor",
     "set_dataset_created",
     "set_dataset_creator",
+    "set_dataset_custom_field",
     "set_dataset_dcat_ap_ch_license",
     "set_dataset_dcat_ap_ch_rights",
     "set_dataset_description",
@@ -185,6 +192,7 @@ __all__ = [
     "set_dataset_public",
     "set_dataset_publisher",
     "set_dataset_relation",
+    "set_dataset_tags",
     "set_dataset_theme",
     "set_dataset_title",
     "set_template_metadata",

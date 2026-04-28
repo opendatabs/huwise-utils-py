@@ -109,6 +109,11 @@ relation = dataset.get_relation()
 # Default template fields
 modified = dataset.get_modified()
 geo_refs = dataset.get_geographic_reference()
+tags = dataset.get_tags()
+
+# Custom template fields
+publishing_org = dataset.get_custom_field("publizierende_organisation")
+model_description = dataset.get_custom_field("geodaten_modellbeschreibung")
 
 # Get all metadata
 metadata = dataset.get_metadata()
@@ -150,6 +155,17 @@ dataset.set_relation("https://example.com/related", publish=False)
 
 # Geographic reference
 dataset.set_geographic_reference(["ch_40_12"], publish=False)
+
+# Tags (default.tags)
+dataset.set_tags(["opendata.swiss", "mobility"], publish=False)
+
+# Custom template fields (custom.*)
+dataset.set_custom_field("publizierende_organisation", "Open Data Basel-Stadt", publish=False)
+dataset.set_custom_field(
+    "geodaten_modellbeschreibung",
+    "Vektormodell gemäss kantonalem Schema v2.",
+    publish=False,
+)
 
 # Modified date with companion flags
 dataset.set_modified(
@@ -244,6 +260,20 @@ dataset.set_title("New Title", publish=False).set_description("Updated descripti
 
 This is more efficient than calling each setter with `publish=True` because it only makes one publish API call instead of six.
 
+### Template assumptions and publish behavior
+
+The helper methods for custom fields and tags assume your domain has:
+
+- `custom.<field_key>` fields configured in the metadata template (for example
+  `custom.publizierende_organisation`)
+- a `default.tags` metadata field for dataset tags
+
+If those fields are not present in your domain template, the API returns an
+error from the metadata field endpoint.
+
+Setter methods default to `publish=True` for convenience. For batched updates,
+set `publish=False` on each call and publish once at the end.
+
 ## API Reference
 
 ::: huwise_utils_py.dataset.HuwiseDataset
@@ -275,6 +305,8 @@ This is more efficient than calling each setter with `publish=True` because it o
         - get_relation
         - get_modified
         - get_geographic_reference
+        - get_custom_field
+        - get_tags
         - set_title
         - set_description
         - set_keywords
@@ -293,6 +325,8 @@ This is more efficient than calling each setter with `publish=True` because it o
         - set_accrualperiodicity
         - set_relation
         - set_geographic_reference
+        - set_custom_field
+        - set_tags
         - set_modified
         - publish
         - unpublish
