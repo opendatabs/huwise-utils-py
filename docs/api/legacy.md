@@ -72,6 +72,8 @@ geo_refs = get_dataset_geographic_reference(dataset_id="100123")
 created_dataset = create_dataset(
     metadata={"default": {"title": {"value": "New Dataset"}}},
     dataset_id="new-dataset",
+    resource_source_url="https://data-bs.ch/stata/fgi/stac/AFBA_Abfuhrzonen.geojson",
+    resource_title="new-dataset.geojson",
 )
 
 # Easier create: metadata is optional
@@ -90,6 +92,7 @@ delete_dataset(dataset_id="new-dataset")
 from huwise_utils_py import (
     append_dataset_field_configuration,
     delete_dataset,
+    delete_dataset_resource,
     delete_dataset_field_configuration,
     set_dataset_title,
     set_dataset_description,
@@ -114,8 +117,10 @@ from huwise_utils_py import (
     # New default template setters
     set_dataset_modified,
     set_dataset_geographic_reference,
+    list_dataset_resources,
     update_dataset_configuration,
     update_dataset_field_configuration,
+    upsert_dataset_resource_http,
 )
 
 # Set metadata (publishes by default)
@@ -174,6 +179,17 @@ update_dataset_field_configuration(
 
 delete_dataset_field_configuration(processor["uid"], dataset_id="100123")
 
+# Upsert resource (idempotent create/update)
+resource = upsert_dataset_resource_http(
+    dataset_id="100095stac",
+    source_url="https://data-bs.ch/stata/fgi/stac/AFBA_Abfuhrzonen.geojson",
+    title="100095stac.geojson",
+)
+
+# List and delete resources
+resources = list_dataset_resources(dataset_id="100095stac")
+delete_dataset_resource(resource["uid"], dataset_id="100095stac")
+
 # Delete a dataset by ID or UID
 delete_dataset(dataset_id="100123")
 ```
@@ -229,6 +245,7 @@ dataset.set_title("New Title", publish=False).set_description("Desc").publish()
 | `get_template_metadata()` | Get template-specific metadata |
 | `list_dataset_field_configurations()` | List dataset field configuration processors |
 | `get_dataset_field_configuration()` | Get one dataset field configuration processor |
+| `list_dataset_resources()` | List dataset resources |
 
 ### Setter Function Catalog
 
@@ -264,3 +281,5 @@ dataset.set_title("New Title", publish=False).set_description("Desc").publish()
 | `append_dataset_field_configuration()` | Append a new dataset field configuration processor |
 | `update_dataset_field_configuration()` | Update an existing dataset field configuration processor |
 | `delete_dataset_field_configuration()` | Delete a dataset field configuration processor |
+| `upsert_dataset_resource_http()` | Idempotently create or update an HTTP dataset resource |
+| `delete_dataset_resource()` | Delete a dataset resource by UID |

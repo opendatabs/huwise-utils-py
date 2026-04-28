@@ -77,6 +77,8 @@ created = HuwiseDataset.create(
     metadata={"default": {"title": {"value": "My New Dataset"}}},
     dataset_id="my-new-dataset",
     is_restricted=False,
+    resource_source_url="https://data-bs.ch/stata/fgi/stac/AFBA_Abfuhrzonen.geojson",
+    resource_title="my-new-dataset.geojson",
 )
 
 # Update dataset-level schema/configuration
@@ -109,6 +111,16 @@ from huwise_utils_py import create_dataset
 new_dataset = create_dataset(
     metadata={"default": {"title": {"value": "My New Dataset"}}},
     dataset_id="my-new-dataset",
+    resource_source_url="https://data-bs.ch/stata/fgi/stac/AFBA_Abfuhrzonen.geojson",
+    resource_title="my-new-dataset.geojson",
+)
+
+# Upsert an HTTP resource (idempotent create/update)
+from huwise_utils_py import upsert_dataset_resource_http
+upsert_dataset_resource_http(
+    dataset_id="100095stac",
+    source_url="https://data-bs.ch/stata/fgi/stac/AFBA_Abfuhrzonen.geojson",
+    title="100095stac.geojson",
 )
 ```
 

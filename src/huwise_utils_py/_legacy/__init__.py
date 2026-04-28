@@ -37,12 +37,14 @@ from huwise_utils_py._legacy.getters import (
     get_template_metadata,
     get_uid_by_id,
     list_dataset_field_configurations,
+    list_dataset_resources,
 )
 from huwise_utils_py._legacy.setters import (
     append_dataset_field_configuration,
     create_dataset,
     delete_dataset,
     delete_dataset_field_configuration,
+    delete_dataset_resource,
     set_dataset_accrualperiodicity,
     set_dataset_contact_email,
     set_dataset_contact_name,
@@ -69,6 +71,7 @@ from huwise_utils_py._legacy.setters import (
     set_template_metadata,
     update_dataset_configuration,
     update_dataset_field_configuration,
+    upsert_dataset_resource_http,
 )
 
 __all__ = [
@@ -76,6 +79,7 @@ __all__ = [
     "create_dataset",
     "delete_dataset",
     "delete_dataset_field_configuration",
+    "delete_dataset_resource",
     "get_all_dataset_ids",
     "get_dataset_accrualperiodicity",
     "get_dataset_contact_email",
@@ -104,6 +108,7 @@ __all__ = [
     "get_template_metadata",
     "get_uid_by_id",
     "list_dataset_field_configurations",
+    "list_dataset_resources",
     "set_dataset_accrualperiodicity",
     "set_dataset_contact_email",
     "set_dataset_contact_name",
@@ -130,4 +135,5 @@ __all__ = [
     "set_template_metadata",
     "update_dataset_configuration",
     "update_dataset_field_configuration",
+    "upsert_dataset_resource_http",
 ]

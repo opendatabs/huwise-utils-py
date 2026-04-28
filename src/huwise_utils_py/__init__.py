@@ -28,6 +28,7 @@ from huwise_utils_py._legacy import (
     create_dataset,
     delete_dataset,
     delete_dataset_field_configuration,
+    delete_dataset_resource,
     get_all_dataset_ids,
     get_dataset_accrualperiodicity,
     get_dataset_contact_email,
@@ -56,6 +57,7 @@ from huwise_utils_py._legacy import (
     get_template_metadata,
     get_uid_by_id,
     list_dataset_field_configurations,
+    list_dataset_resources,
     set_dataset_accrualperiodicity,
     set_dataset_contact_email,
     set_dataset_contact_name,
@@ -82,6 +84,7 @@ from huwise_utils_py._legacy import (
     set_template_metadata,
     update_dataset_configuration,
     update_dataset_field_configuration,
+    upsert_dataset_resource_http,
 )
 from huwise_utils_py.bulk import (
     bulk_get_dataset_ids,
@@ -106,7 +109,7 @@ from huwise_utils_py.utils import (
     validate_dataset_identifier,
 )
 
-__version__ = "1.4.1"
+__version__ = "1.4.2"
 
 __all__ = [
     "LICENSE_MAP",
@@ -128,6 +131,7 @@ __all__ = [
     "create_dataset",
     "delete_dataset",
     "delete_dataset_field_configuration",
+    "delete_dataset_resource",
     "get_all_dataset_ids",
     "get_dataset_accrualperiodicity",
     "get_dataset_contact_email",
@@ -158,6 +162,7 @@ __all__ = [
     "get_uid_by_id",
     "init_logger",
     "list_dataset_field_configurations",
+    "list_dataset_resources",
     "retry",
     "set_dataset_accrualperiodicity",
     "set_dataset_contact_email",
@@ -186,5 +191,6 @@ __all__ = [
     "strip_empty_metadata_values",
     "update_dataset_configuration",
     "update_dataset_field_configuration",
+    "upsert_dataset_resource_http",
     "validate_dataset_identifier",
 ]
