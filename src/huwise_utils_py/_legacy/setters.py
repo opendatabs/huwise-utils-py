@@ -99,6 +99,7 @@ def set_dataset_title(
     dataset_id: str | None = None,
     dataset_uid: str | None = None,
     publish: bool = True,
+    override_remote_value: bool | None = None,
 ) -> None:
     """Set the title of a dataset.
 
@@ -110,7 +111,7 @@ def set_dataset_title(
     """
     uid = validate_dataset_identifier(dataset_id, dataset_uid)
     dataset = HuwiseDataset(uid=uid)
-    dataset.set_title(title, publish=publish)
+    dataset.set_title(title, publish=publish, override_remote_value=override_remote_value)
 
 
 def set_dataset_description(
@@ -137,6 +138,7 @@ def set_dataset_keywords(
     dataset_id: str | None = None,
     dataset_uid: str | None = None,
     publish: bool = True,
+    override_remote_value: bool | None = None,
 ) -> None:
     """Set the keywords of a dataset.
 
@@ -148,7 +150,7 @@ def set_dataset_keywords(
     """
     uid = validate_dataset_identifier(dataset_id, dataset_uid)
     dataset = HuwiseDataset(uid=uid)
-    dataset.set_keywords(keywords, publish=publish)
+    dataset.set_keywords(keywords, publish=publish, override_remote_value=override_remote_value)
 
 
 def set_dataset_language(
@@ -447,6 +449,7 @@ def set_dataset_custom_field(
     dataset_id: str | None = None,
     dataset_uid: str | None = None,
     publish: bool = True,
+    override_remote_value: bool | None = None,
 ) -> None:
     """Set a custom metadata field in the ``custom`` template.
 
@@ -459,7 +462,7 @@ def set_dataset_custom_field(
     """
     uid = validate_dataset_identifier(dataset_id, dataset_uid)
     dataset = HuwiseDataset(uid=uid)
-    dataset.set_custom_field(field_key, value, publish=publish)
+    dataset.set_custom_field(field_key, value, publish=publish, override_remote_value=override_remote_value)
 
 
 def set_dataset_tags(
@@ -467,6 +470,7 @@ def set_dataset_tags(
     dataset_id: str | None = None,
     dataset_uid: str | None = None,
     publish: bool = True,
+    override_remote_value: bool | None = None,
 ) -> None:
     """Set tags in ``default.tags`` for a dataset.
 
@@ -478,7 +482,7 @@ def set_dataset_tags(
     """
     uid = validate_dataset_identifier(dataset_id, dataset_uid)
     dataset = HuwiseDataset(uid=uid)
-    dataset.set_tags(tags, publish=publish)
+    dataset.set_tags(tags, publish=publish, override_remote_value=override_remote_value)
 
 
 def set_dataset_modified(
