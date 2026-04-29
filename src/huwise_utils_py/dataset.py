@@ -227,7 +227,15 @@ class HuwiseDataset:
         template_data: dict[str, Any] = response.json()
         return template_data.get(field_name, {}).get("value")
 
-    def _set_metadata_value(self, template: str, field_name: str, value: Any, *, publish: bool = True) -> Self:
+    def _set_metadata_value(
+        self,
+        template: str,
+        field_name: str,
+        value: Any,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set a specific metadata field value.
 
         Uses the per-field endpoint
@@ -238,15 +246,18 @@ class HuwiseDataset:
             field_name: Field name within the template.
             value: The value to set.
             publish: Whether to publish after updating.
+            override_remote_value: Optional override flag for remote metadata
+                synchronization. ``True`` means local value wins. ``False`` means
+                remote value wins. ``None`` leaves existing behavior unchanged.
 
         Returns:
             Self for method chaining.
         """
         self._wait_for_idle()
-        self._client.put(
-            f"/datasets/{self.uid}/metadata/{template}/{field_name}/",
-            json={"value": value},
-        )
+        payload: dict[str, Any] = {"value": value}
+        if override_remote_value is not None:
+            payload["override_remote_value"] = override_remote_value
+        self._client.put(f"/datasets/{self.uid}/metadata/{template}/{field_name}/", json=payload)
 
         logger.info(
             "Updated metadata field",
@@ -493,7 +504,7 @@ class HuwiseDataset:
     # Setters (return Self for method chaining)
     # =========================================================================
 
-    def set_title(self, title: str, *, publish: bool = True) -> Self:
+    def set_title(self, title: str, *, publish: bool = True, override_remote_value: bool | None = None) -> Self:
         """Set the dataset title.
 
         Args:
@@ -503,9 +514,21 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("default", "title", title, publish=publish)
+        return self._set_metadata_value(
+            "default",
+            "title",
+            title,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_description(self, description: str, *, publish: bool = True) -> Self:
+    def set_description(
+        self,
+        description: str,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the dataset description.
 
         Args:
@@ -515,9 +538,21 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("default", "description", description, publish=publish)
+        return self._set_metadata_value(
+            "default",
+            "description",
+            description,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_keywords(self, keywords: list[str], *, publish: bool = True) -> Self:
+    def set_keywords(
+        self,
+        keywords: list[str],
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the dataset keywords.
 
         Args:
@@ -527,9 +562,21 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("default", "keyword", keywords, publish=publish)
+        return self._set_metadata_value(
+            "default",
+            "keyword",
+            keywords,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_language(self, language: str, *, publish: bool = True) -> Self:
+    def set_language(
+        self,
+        language: str,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the dataset language.
 
         Args:
@@ -539,9 +586,21 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("default", "language", language, publish=publish)
+        return self._set_metadata_value(
+            "default",
+            "language",
+            language,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_publisher(self, publisher: str, *, publish: bool = True) -> Self:
+    def set_publisher(
+        self,
+        publisher: str,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the dataset publisher.
 
         Args:
@@ -551,7 +610,13 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("default", "publisher", publisher, publish=publish)
+        return self._set_metadata_value(
+            "default",
+            "publisher",
+            publisher,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
     def set_theme(self, theme_id: str, *, publish: bool = True) -> Self:
         """Set the dataset theme.
@@ -571,6 +636,7 @@ class HuwiseDataset:
         *,
         license_name: str | None = None,
         publish: bool = True,
+        override_remote_value: bool | None = None,
     ) -> Self:
         """Set the dataset license.
 
@@ -592,16 +658,22 @@ class HuwiseDataset:
         self._wait_for_idle()
 
         # Set the writable license_id (platform propagates to internal.license_id)
+        license_id_payload: dict[str, Any] = {"value": license_id}
+        if override_remote_value is not None:
+            license_id_payload["override_remote_value"] = override_remote_value
         self._client.put(
             f"/datasets/{self.uid}/metadata/default/license_id/",
-            json={"value": license_id},
+            json=license_id_payload,
         )
 
         # Optionally set the human-readable license string
         if license_name is not None:
+            license_name_payload: dict[str, Any] = {"value": license_name}
+            if override_remote_value is not None:
+                license_name_payload["override_remote_value"] = override_remote_value
             self._client.put(
                 f"/datasets/{self.uid}/metadata/default/license/",
-                json={"value": license_name},
+                json=license_name_payload,
             )
 
         logger.info(
@@ -616,7 +688,13 @@ class HuwiseDataset:
 
         return self
 
-    def set_dcat_ap_ch_rights(self, rights: str, *, publish: bool = True) -> Self:
+    def set_dcat_ap_ch_rights(
+        self,
+        rights: str,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the DCAT-AP-CH rights statement.
 
         Args:
@@ -628,9 +706,21 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("dcat_ap_ch", "rights", rights, publish=publish)
+        return self._set_metadata_value(
+            "dcat_ap_ch",
+            "rights",
+            rights,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_dcat_ap_ch_license(self, license_code: str, *, publish: bool = True) -> Self:
+    def set_dcat_ap_ch_license(
+        self,
+        license_code: str,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the DCAT-AP-CH license code.
 
         Args:
@@ -641,9 +731,21 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("dcat_ap_ch", "license", license_code, publish=publish)
+        return self._set_metadata_value(
+            "dcat_ap_ch",
+            "license",
+            license_code,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_created(self, created: str, *, publish: bool = True) -> Self:
+    def set_created(
+        self,
+        created: str,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the dataset creation date (``dcat.created``).
 
         Args:
@@ -653,9 +755,21 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("dcat", "created", created, publish=publish)
+        return self._set_metadata_value(
+            "dcat",
+            "created",
+            created,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_issued(self, issued: str, *, publish: bool = True) -> Self:
+    def set_issued(
+        self,
+        issued: str,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the dataset publication date (``dcat.issued``).
 
         Args:
@@ -665,9 +779,21 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("dcat", "issued", issued, publish=publish)
+        return self._set_metadata_value(
+            "dcat",
+            "issued",
+            issued,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_creator(self, creator: str, *, publish: bool = True) -> Self:
+    def set_creator(
+        self,
+        creator: str,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the dataset creator.
 
         Args:
@@ -677,7 +803,13 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("dcat", "creator", creator, publish=publish)
+        return self._set_metadata_value(
+            "dcat",
+            "creator",
+            creator,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
     def set_contributor(self, contributor: str, *, publish: bool = True) -> Self:
         """Set the dataset contributor.
@@ -691,7 +823,13 @@ class HuwiseDataset:
         """
         return self._set_metadata_value("dcat", "contributor", contributor, publish=publish)
 
-    def set_contact_name(self, name: str, *, publish: bool = True) -> Self:
+    def set_contact_name(
+        self,
+        name: str,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the dataset contact name.
 
         Args:
@@ -701,9 +839,21 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("dcat", "contact_name", name, publish=publish)
+        return self._set_metadata_value(
+            "dcat",
+            "contact_name",
+            name,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_contact_email(self, email: str, *, publish: bool = True) -> Self:
+    def set_contact_email(
+        self,
+        email: str,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the dataset contact email.
 
         Args:
@@ -713,9 +863,21 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("dcat", "contact_email", email, publish=publish)
+        return self._set_metadata_value(
+            "dcat",
+            "contact_email",
+            email,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_accrualperiodicity(self, frequency: str, *, publish: bool = True) -> Self:
+    def set_accrualperiodicity(
+        self,
+        frequency: str,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the dataset accrual periodicity.
 
         Args:
@@ -726,9 +888,21 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("dcat", "accrualperiodicity", frequency, publish=publish)
+        return self._set_metadata_value(
+            "dcat",
+            "accrualperiodicity",
+            frequency,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_relation(self, relation: str, *, publish: bool = True) -> Self:
+    def set_relation(
+        self,
+        relation: str,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the dataset relation URL.
 
         Args:
@@ -738,9 +912,21 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("dcat", "relation", relation, publish=publish)
+        return self._set_metadata_value(
+            "dcat",
+            "relation",
+            relation,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_geographic_reference(self, references: list[str], *, publish: bool = True) -> Self:
+    def set_geographic_reference(
+        self,
+        references: list[str],
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set the dataset geographic reference codes.
 
         Args:
@@ -752,9 +938,22 @@ class HuwiseDataset:
         Returns:
             Self for method chaining.
         """
-        return self._set_metadata_value("default", "geographic_reference", references, publish=publish)
+        return self._set_metadata_value(
+            "default",
+            "geographic_reference",
+            references,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_custom_field(self, field_key: str, value: Any, *, publish: bool = True) -> Self:
+    def set_custom_field(
+        self,
+        field_key: str,
+        value: Any,
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set a field in the ``custom`` metadata template.
 
         Args:
@@ -767,9 +966,21 @@ class HuwiseDataset:
         """
         normalized_key = self._validate_field_key(field_key)
         self._ensure_json_serializable(value, value_name="value")
-        return self._set_metadata_value("custom", normalized_key, value, publish=publish)
+        return self._set_metadata_value(
+            "custom",
+            normalized_key,
+            value,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
-    def set_tags(self, tags: list[str], *, publish: bool = True) -> Self:
+    def set_tags(
+        self,
+        tags: list[str],
+        *,
+        publish: bool = True,
+        override_remote_value: bool | None = None,
+    ) -> Self:
         """Set dataset tags in ``default.tags``.
 
         Args:
@@ -784,7 +995,13 @@ class HuwiseDataset:
         if any(not isinstance(tag, str) or not tag.strip() for tag in tags):
             raise ValueError("tags must contain only non-empty strings")
         self._ensure_json_serializable(tags, value_name="tags")
-        return self._set_metadata_value("default", "tags", tags, publish=publish)
+        return self._set_metadata_value(
+            "default",
+            "tags",
+            tags,
+            publish=publish,
+            override_remote_value=override_remote_value,
+        )
 
     def set_modified(
         self,

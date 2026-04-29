@@ -126,7 +126,9 @@ def test_legacy_set_dataset_tags_delegates_to_dataset_by_uid() -> None:
 
     validate.assert_called_once_with(None, "dataset-uid")
     dataset_cls.assert_called_once_with(uid="resolved-uid")
-    dataset_cls.return_value.set_tags.assert_called_once_with(["opendata.swiss"], publish=False)
+    dataset_cls.return_value.set_tags.assert_called_once_with(
+        ["opendata.swiss"], publish=False, override_remote_value=None
+    )
 
 
 def test_legacy_get_dataset_custom_field_and_tags_delegate_to_dataset_api() -> None:
@@ -154,4 +156,33 @@ def test_existing_legacy_set_dataset_title_still_delegates_without_regression() 
     ):
         set_dataset_title("Updated title", dataset_id="100123", publish=False)
 
-    dataset_cls.return_value.set_title.assert_called_once_with("Updated title", publish=False)
+    dataset_cls.return_value.set_title.assert_called_once_with(
+        "Updated title", publish=False, override_remote_value=None
+    )
+
+
+def test_huwise_dataset_set_custom_field_with_override_remote_value() -> None:
+    """Custom field setter should support override_remote_value payload."""
+    dataset = _make_dataset()
+    dataset._wait_for_idle = MagicMock()
+    dataset._client = MagicMock()
+
+    dataset.set_custom_field("publizierende_organisation", "Open Data", publish=False, override_remote_value=True)
+
+    dataset._client.put.assert_called_once_with(
+        "/datasets/dataset-uid/metadata/custom/publizierende_organisation/",
+        json={"value": "Open Data", "override_remote_value": True},
+    )
+
+
+def test_legacy_set_dataset_tags_delegates_override_remote_value() -> None:
+    """Legacy helper should pass override_remote_value to dataset API."""
+    with (
+        patch("huwise_utils_py._legacy.setters.validate_dataset_identifier", return_value="resolved-uid"),
+        patch("huwise_utils_py._legacy.setters.HuwiseDataset") as dataset_cls,
+    ):
+        set_dataset_tags(["opendata.swiss"], dataset_uid="dataset-uid", publish=False, override_remote_value=True)
+
+    dataset_cls.return_value.set_tags.assert_called_once_with(
+        ["opendata.swiss"], publish=False, override_remote_value=True
+    )
